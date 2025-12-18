@@ -19,6 +19,10 @@ class Fact(BaseModel):
     source: str = "world"  # Who established this fact
     is_public: bool = True  # Whether this fact is common knowledge
     witnesses: List[str] = Field(default_factory=list)  # Who knows this fact
+    # NEW: Link to events and schedule
+    event_id: Optional[str] = None  # Which event does this fact relate to?
+    schedule_day: Optional[int] = None  # Which day on schedule?
+    schedule_period: Optional[str] = None  # Which time period?
 
 
 class Event(BaseModel):
@@ -30,6 +34,9 @@ class Event(BaseModel):
     participants: List[str] = Field(default_factory=list)
     witnesses: List[str] = Field(default_factory=list)
     details: Dict[str, Any] = Field(default_factory=dict)
+    # NEW: Event sequencing
+    sequence_order: int = 0  # Order within the same time period (0 = first, 1 = second, etc.)
+    caused_by: Optional[str] = None  # event_id that caused this event
 
 
 class Relationship(BaseModel):
@@ -92,7 +99,10 @@ class WorldState:
         
     def add_fact(self, key: str, value: Any, category: str = "general", 
                  is_public: bool = True, witnesses: Optional[List[str]] = None,
-                 source: str = "world", timestamp: Optional[str] = None) -> None:
+                 source: str = "world", timestamp: Optional[str] = None,
+                 event_id: Optional[str] = None,
+                 schedule_day: Optional[int] = None,
+                 schedule_period: Optional[str] = None) -> None:
         """Add or update a fact in the world state"""
         self.facts[key] = Fact(
             key=key,
@@ -101,7 +111,10 @@ class WorldState:
             is_public=is_public,
             witnesses=witnesses or [],
             source=source,
-            timestamp=timestamp
+            timestamp=timestamp,
+            event_id=event_id,
+            schedule_day=schedule_day,
+            schedule_period=schedule_period
         )
         
     def get_fact(self, key: str) -> Optional[Any]:
@@ -145,7 +158,9 @@ class WorldState:
     def add_event(self, event_id: str, description: str, timestamp: str,
                  location: str, participants: Optional[List[str]] = None,
                  witnesses: Optional[List[str]] = None,
-                 details: Optional[Dict[str, Any]] = None) -> None:
+                 details: Optional[Dict[str, Any]] = None,
+                 sequence_order: int = 0,
+                 caused_by: Optional[str] = None) -> None:
         """Add an event to the timeline"""
         self.events[event_id] = Event(
             event_id=event_id,
@@ -154,7 +169,9 @@ class WorldState:
             location=location,
             participants=participants or [],
             witnesses=witnesses or [],
-            details=details or {}
+            details=details or {},
+            sequence_order=sequence_order,
+            caused_by=caused_by
         )
         
         # Add location and characters to tracking
@@ -288,6 +305,20 @@ class WorldState:
             entries = [e for e in entries if e.time_block.day == day]
         
         return sorted(entries, key=lambda e: (e.time_block.day, self.time_periods.index(e.time_block.period)))
+    
+    def query_facts_by_event(self, event_id: str) -> List[Fact]:
+        """Get all facts associated with a specific event"""
+        return [fact for fact in self.facts.values() if fact.event_id == event_id]
+    
+    def query_facts_by_schedule(self, day: int, period: str) -> List[Fact]:
+        """Get all facts from a specific schedule time"""
+        return [fact for fact in self.facts.values() 
+                if fact.schedule_day == day and fact.schedule_period == period]
+    
+    def get_events_in_sequence(self, timestamp: str) -> List[Event]:
+        """Get all events at a timestamp, ordered by sequence_order"""
+        events = [e for e in self.events.values() if e.timestamp == timestamp]
+        return sorted(events, key=lambda e: e.sequence_order)
     
     def get_character_location_at_time(self, character: str, day: int, period: str) -> Optional[str]:
         """Get where a character was during a specific time period"""

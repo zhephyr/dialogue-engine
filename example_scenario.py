@@ -42,16 +42,28 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     # Core facts about the murder
     world.add_fact("victim", "Lord Harrow", category="murder", is_public=True)
     world.add_fact("murder_weapon", "letter opener", category="murder", is_public=False, 
-                   witnesses=["Marian", "Edmund Vale"])
-    world.add_fact("cause_of_death", "stab wound", category="murder", is_public=True)
-    world.add_fact("time_of_death", "Day 1 - Evening", category="murder", is_public=True)
-    world.add_fact("murder_location", "Study", category="murder", is_public=True)
-    world.add_fact("door_locked", True, category="murder", is_public=True)
+                   witnesses=["Marian", "Edmund Vale"],
+                   event_id="murder",
+                   schedule_day=1, schedule_period="late_night")
+    world.add_fact("cause_of_death", "stab wound", category="murder", is_public=True,
+                   event_id="murder")
+    world.add_fact("time_of_death", "Day 1 - Evening", category="murder", is_public=True,
+                   event_id="murder",
+                   schedule_day=1, schedule_period="late_night")
+    world.add_fact("murder_location", "Study", category="murder", is_public=True,
+                   event_id="murder")
+    world.add_fact("door_locked", True, category="murder", is_public=True,
+                   event_id="murder")
     world.add_fact("door_staged", True, category="murder", is_public=False,
-                   witnesses=["Edmund Vale"])  # Only the murderer knows this
-    world.add_fact("body_discovered_by", "Marian", category="murder", is_public=True)
-    world.add_fact("discovery_time", "Day 1 - Late Night", category="murder", is_public=True)
-    
+                   witnesses=["Edmund Vale"],
+                   event_id="murder",
+                   schedule_day=1, schedule_period="late_night")
+    world.add_fact("body_discovered_by", "Marian", category="murder", is_public=True,
+                   event_id="body_discovery",
+                   schedule_day=1, schedule_period="overnight")
+    world.add_fact("discovery_time", "Day 1 - Late Night", category="murder", is_public=True,
+                   event_id="body_discovery")
+
     # ========== EXPLICIT TIMELINE/SCHEDULE ==========
     # Day 1 schedule for all NPCs - stating exactly where everyone was and what they were doing
     
@@ -138,25 +150,36 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_schedule_entry("Marian", 1, "overnight", "Study",
                             "Discovered Lord Harrow's body, door was locked",
                             is_public=True,
-                            witnesses=["Marian"],
-                            notes="Discovery of the body - raised alarm")
-    world.add_schedule_entry("Edmund Vale", 1, "overnight", "Library",
-                            "Claimed to be reading when alarm raised",
-                            is_public=False,
-                            witnesses=["Edmund Vale"])
+                            witnesses=["Marian"])
+    
+    # After alarm - everyone in foyer
+    world.add_schedule_entry("Marian", 1, "overnight", "Foyer",
+                            "Raised alarm, gathered everyone to inform them of murder",
+                            with_characters=["Clara Harrow", "Edmund Vale", "Dr. Liu"],
+                            is_public=True,
+                            witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+                            notes="Informed everyone together in foyer")
     world.add_schedule_entry("Clara Harrow", 1, "overnight", "Foyer",
-                            "Responded to alarm, shocked by news",
+                            "Responded to alarm from Library, learned of murder",
+                            with_characters=["Marian", "Edmund Vale", "Dr. Liu"],
                             is_public=True,
-                            witnesses=["Clara Harrow", "Edmund Vale", "Dr. Liu", "Marian"])
+                            witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"])
+    world.add_schedule_entry("Edmund Vale", 1, "overnight", "Foyer",
+                            "Responded to alarm from Library, feigned shock at news",
+                            with_characters=["Marian", "Clara Harrow", "Dr. Liu"],
+                            is_public=False,
+                            witnesses=["Edmund Vale"],
+                            notes="Pretended to be shocked, but already knew")
     world.add_schedule_entry("Dr. Liu", 1, "overnight", "Foyer",
-                            "Responded to alarm",
+                            "Responded to alarm from Library, learned of murder",
+                            with_characters=["Marian", "Clara Harrow", "Edmund Vale"],
                             is_public=True,
-                            witnesses=["Clara Harrow", "Edmund Vale", "Dr. Liu", "Marian"])
+                            witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"])
     
     # Remove old location facts (replaced by schedule system)
     # Keeping events for now as they provide narrative context
     
-    # Key events
+    # Key events - NOW WITH SEQUENCE ORDERING
     world.add_event(
         event_id="dinner_argument",
         description="Edmund Vale and Lord Harrow had a heated public argument during dinner",
@@ -168,20 +191,36 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
             "topic": "financial matters",
             "intensity": "heated",
             "public": True
-        }
+        },
+        sequence_order=0  # First event of evening
+    )
+    
+    world.add_event(
+        event_id="dinner_ends",
+        description="Dinner concluded, occupants dispersed to various rooms",
+        timestamp="Day 1 - Evening",
+        location="Dining Room",
+        participants=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"],
+        witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"],
+        details={
+            "dispersal": "occupants went to separate locations"
+        },
+        sequence_order=1,  # Second event of evening
+        caused_by="dinner_argument"
     )
     
     world.add_event(
         event_id="edmund_with_victim",
         description="Edmund Vale was alone with Lord Harrow in the study",
-        timestamp="Day 1 - Late Night (before murder)",
+        timestamp="Day 1 - Late Night",
         location="Study",
         participants=["Edmund Vale", "Lord Harrow"],
         witnesses=["Edmund Vale"],
         details={
             "duration": "brief",
             "purpose": "private conversation"
-        }
+        },
+        sequence_order=0  # First event of late night period
     )
     
     world.add_event(
@@ -195,7 +234,9 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
             "weapon": "letter opener",
             "fatal": True,
             "door_locked_after": True
-        }
+        },
+        sequence_order=1,  # Second event - happens after private conversation
+        caused_by="edmund_with_victim"
     )
     
     world.add_event(
@@ -208,7 +249,104 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         details={
             "door_state": "locked",
             "victim_state": "deceased"
-        }
+        },
+        sequence_order=0  # First event of overnight period
+    )
+    
+    # NEW: Explicit alarm response event
+    world.add_event(
+        event_id="alarm_raised",
+        description="Marian raised alarm after discovering body, all occupants gathered in foyer",
+        timestamp="Day 1 - Overnight",
+        location="Foyer",
+        participants=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        details={
+            "alarm_method": "Marian called out through the house",
+            "response": "all occupants came to foyer",
+            "shock_level": "extreme",
+            "informing_method": "Marian informed everyone together in foyer"
+        },
+        sequence_order=1,  # Happens immediately after discovery
+        caused_by="body_discovery"
+    )
+    
+    # NEW: Explicit facts about alarm response
+    world.add_fact(
+        "alarm_response_method",
+        "Marian raised alarm by calling out through the house after discovering the body",
+        category="murder",
+        is_public=True,
+        witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "alarm_gathering_location",
+        "Everyone gathered in the Foyer after hearing Marian's alarm",
+        category="murder",
+        is_public=True,
+        witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "clara_location_when_alarm",
+        "Clara Harrow came from the Library when she heard the alarm",
+        category="murder",
+        is_public=True,
+        witnesses=["Clara Harrow", "Dr. Liu", "Marian"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "edmund_location_when_alarm",
+        "Edmund Vale came from the Library when he heard the alarm",
+        category="murder",
+        is_public=True,
+        witnesses=["Edmund Vale", "Marian"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "liu_location_when_alarm",
+        "Dr. Liu came from the Library when he heard the alarm",
+        category="murder",
+        is_public=True,
+        witnesses=["Dr. Liu", "Clara Harrow", "Marian"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "group_informed_together",
+        "Marian informed everyone about the murder together in the Foyer, not individually",
+        category="murder",
+        is_public=True,
+        witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
+    )
+    
+    world.add_fact(
+        "no_individual_informing",
+        "Marian did not go to each person individually; everyone came to the foyer when the alarm was raised",
+        category="murder",
+        is_public=True,
+        witnesses=["Marian", "Clara Harrow", "Edmund Vale", "Dr. Liu"],
+        event_id="alarm_raised",
+        schedule_day=1,
+        schedule_period="overnight"
     )
     
     world.add_event(
@@ -221,7 +359,8 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         details={
             "reason": "family tension",
             "visible": True
-        }
+        },
+        sequence_order=0  # Concurrent with murder, different location
     )
     
     # Relationships
@@ -347,7 +486,9 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         secrets=[
             "I discovered the body when the study door was locked",
             "I noticed Edmund was agitated after dinner",
-            "I heard raised voices from the study earlier"
+            "I heard raised voices from the study earlier",
+            "After discovering the body, I raised an alarm by calling out through the house",
+            "Everyone came to the Foyer when they heard my alarm - I informed them all together there, not individually"
         ],
         current_location="Foyer",
         emotional_state="Shocked but composed"
