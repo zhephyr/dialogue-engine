@@ -90,6 +90,33 @@ python example_scenario.py
 
 This will display scenario statistics and confirm everything is loaded correctly.
 
+**Scenario Facts (for testing reference):**
+
+*The Ground Truth:*
+- **Murderer:** Edmund Vale
+- **Victim:** Lord Harrow (stabbed with letter opener in the Study during Evening)
+- **Murder Weapon:** Letter opener
+- **Key Deception:** Door was locked AFTER the murder to stage a locked-room mystery
+
+*Timeline & Locations:*
+- **Dinner:** Public argument between Edmund and Lord Harrow in Dining Room (witnessed by all)
+- **Evening:** Edmund was alone with Lord Harrow in Study (only Edmund knows this)
+- **Evening:** Clara was in Library with Dr. Liu (both witnessed each other's location)
+- **Evening:** Marian was in Kitchen (no witnesses)
+- **Night:** Marian discovered the body in the locked Study
+
+*Who Knows What:*
+- **Edmund** knows: He committed the murder, he staged the door lock, the argument was about allowance
+- **Clara** knows: She was upset about inheritance discussions, she was with Dr. Liu during the murder
+- **Marian** knows: Discovered the body, door was locked, heard raised voices earlier, saw Edmund agitated
+- **Dr. Liu** knows: Was with Clara during murder, observed Edmund's nervousness, heard the dinner argument
+
+*Test Objectives:*
+- Edmund should lie about his whereabouts and deflect suspicion
+- Clara should be defensive and appear suspicious despite innocence
+- Marian should refuse to speculate without evidence
+- Dr. Liu should offer observations without making accusations
+
 ### Standalone Console Mode
 
 ```bash

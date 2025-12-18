@@ -22,6 +22,18 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     # ========== WORLD STATE SETUP ==========
     world = WorldState()
     
+    # Setting information
+    world.add_fact("time_period", "1800s", category="setting", is_public=True)
+    world.add_fact("setting", "Victorian England", category="setting", is_public=True)
+    world.add_fact("estate_name", "Harrow Estate", category="setting", is_public=True)
+    world.add_fact("estate_type", "Secluded country mansion", category="setting", is_public=True)
+    
+    # Player character information
+    world.add_fact("player_role", "Investigator from Scotland Yard", category="player", is_public=True)
+    world.add_fact("player_authority", "Official police investigator", category="player", is_public=True)
+    world.add_fact("player_arrival", "After the murder was discovered", category="player", is_public=True)
+    world.add_character("Investigator")  # Register the player as a character
+    
     # Locations
     locations = ["Foyer", "Library", "Dining Room", "Study", "Kitchen", "Greenhouse"]
     for location in locations:
@@ -184,7 +196,8 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         "Lord Harrow": "My benefactor, though our relationship had become strained",
         "Clara Harrow": "Fellow family member, we've always been cordial",
         "Marian": "The butler, very proper and dutiful",
-        "Dr. Liu": "A guest I've met only briefly"
+        "Dr. Liu": "A guest I've met only briefly",
+        "Investigator": "Scotland Yard detective, I must be careful and cooperative"
     }
     
     # Clara Harrow - Innocent but Suspicious
@@ -217,7 +230,8 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         "Lord Harrow": "My dear relative, we had our difficulties but I loved him",
         "Edmund Vale": "A cousin, ambitious and always asking for money",
         "Marian": "Faithful servant, known him for years",
-        "Dr. Liu": "A polite guest, we spoke briefly in the library"
+        "Dr. Liu": "A polite guest, we spoke briefly in the library",
+        "Investigator": "The detective from Scotland Yard, here to investigate the murder"
     }
     
     # Marian - The Butler
@@ -250,7 +264,8 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         "Lord Harrow": "My employer for twenty years, a good man",
         "Edmund Vale": "A frequent visitor, often discussing finances with His Lordship",
         "Clara Harrow": "Family member, always kind to the staff",
-        "Dr. Liu": "Tonight's guest, seemed pleasant"
+        "Dr. Liu": "Tonight's guest, seemed pleasant",
+        "Investigator": "The Scotland Yard investigator, I must assist them professionally"
     }
     
     # Dr. Liu - Analytical Observer
@@ -282,7 +297,8 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
         "Lord Harrow": "My host, we were to discuss business tomorrow",
         "Edmund Vale": "Met tonight, seemed preoccupied",
         "Clara Harrow": "We spoke in the library, she seemed distressed",
-        "Marian": "Professional and courteous butler"
+        "Marian": "Professional and courteous butler",
+        "Investigator": "Scotland Yard detective investigating the murder"
     }
     
     # ========== INITIALIZE ENGINE ==========
@@ -296,9 +312,10 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     
     # Set initial scene
     engine.set_scene(
-        "You have arrived at Harrow Estate following the murder of Lord Harrow. "
-        "The study remains locked, the body discovered. The household is in shock. "
-        "You must question the occupants to uncover the truth."
+        "Victorian England, 1800s. You are an investigator dispatched from Scotland Yard "
+        "to Harrow Estate, a secluded country mansion. Lord Harrow has been murdered in his study. "
+        "The household is in shock. You have arrived to question the occupants and uncover the truth. "
+        "The NPCs know you are an official police investigator with authority to question them."
     )
     
     if verbose:
