@@ -2,11 +2,19 @@
 Version information for the Murder Mystery Dialogue Engine
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __version_info__ = tuple(int(i) for i in __version__.split("."))
 
 # Version history
 VERSION_HISTORY = """
+0.3.0 (2025-12-17)
+-----------------
+- Replaced scenario with "The Gallery Silence" - a dialogue-first murder mystery
+- Designed to test dialogue engine through contradictory testimonies, not physical evidence
+- Added enhanced fact-event-schedule integration with sequence_order and causality tracking
+- Killer has genuine alibi for moment of death but lies about earlier interactions
+- Mystery solvable only through exposing timeline contradictions in dialogue
+
 0.2.0 (2025-12-17)
 -----------------
 - Added explicit timeline/schedule system with TimeBlock and NPCScheduleEntry to eliminate time/location inconsistencies. NPCs now have precise schedules that AI must follow. Added /timeline command to view schedules.

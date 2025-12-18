@@ -1,6 +1,6 @@
 # Murder Mystery Dialogue Engine
 
-**Version 0.2.0**
+**Version 0.3.0**
 
 A drop-in dialogue engine that uses AI agents to represent NPCs in a murder mystery game. Supports free-form conversations with fact-checking against a world state. Created completely with AI (Claude Sonnet 4.5 mainly).
 
@@ -9,6 +9,7 @@ A drop-in dialogue engine that uses AI agents to represent NPCs in a murder myst
 - **AI-Powered NPCs**: Each NPC is an intelligent agent with personality, goals, fears, and relationships
 - **Fact-Checking**: Claims made by NPCs are validated against the world state
 - **Memory System**: NPCs track their lies, omissions, and conversation history
+- **Timeline System**: Detailed schedules ensure NPCs can't contradict their whereabouts 
 - **Standalone Testing**: Console interface for testing without game integration
 - **Drop-in Design**: Easy to integrate into existing game systems
 
@@ -30,7 +31,7 @@ pip install -r requirements.txt
 
 ### Testing the Example Scenario
 
-The project includes "The Harrow Estate Incident" - a complete murder mystery scenario for testing and demonstration.
+The project includes "**The Gallery Silence**" - a dialogue-first murder mystery scenario designed to test the engine's ability to handle conflicting testimonies without relying on physical evidence.
 
 **Quick Start:**
 
@@ -58,21 +59,27 @@ python console_interface.py
 /npcs
 
 # Talk to a specific NPC
-/talk Edmund Vale
+/talk Nathan Cross
 
 # Ask questions
 Where were you during the evening?
-Did you see anyone near the study?
+Did you see Elias drinking wine?
+Who poured the drinks?
 
 # Check NPC status and lies
-/status Edmund Vale
-/lies Edmund Vale
+/status Nathan Cross
+/lies Nathan Cross
 
 # View conversation history
-/history Edmund Vale
+/history Nathan Cross
+
+# View timeline/schedule
+/timeline
+/timeline Nathan Cross
 
 # Get world state information
 /world
+/setting
 
 # View engine statistics
 /stats
@@ -92,32 +99,43 @@ python example_scenario.py
 
 This will display scenario statistics and confirm everything is loaded correctly.
 
-**Scenario Facts (for testing reference):**
+**Scenario Overview: "The Gallery Silence"**
+
+**Setting:** Victorian England, 1800s, Morven Estate  
+**You are:** An investigator from Scotland Yard
 
 *The Ground Truth:*
-- **Murderer:** Edmund Vale
-- **Victim:** Lord Harrow (stabbed with letter opener in the Study during Evening)
-- **Murder Weapon:** Letter opener
-- **Key Deception:** Door was locked AFTER the murder to stage a locked-room mystery
+- **Victim:** Elias Morven (host of evening gathering)
+- **Murderer:** Nathan Cross
+- **Method:** Poisoned wine during early evening conversation in Sitting Room
+- **Death Location:** Gallery (later, when Nathan was NOT present)
+- **Key Design:** Killer has genuine alibi for moment of death, but lies about EARLIER events
 
-*Timeline & Locations:*
-- **Dinner:** Public argument between Edmund and Lord Harrow in Dining Room (witnessed by all)
-- **Evening:** Edmund was alone with Lord Harrow in Study (only Edmund knows this)
-- **Evening:** Clara was in Library with Dr. Liu (both witnessed each other's location)
-- **Evening:** Marian was in Kitchen (no witnesses)
-- **Night:** Marian discovered the body in the locked Study
+*The Mystery Design:*
+This scenario is **dialogue-first** - solvable ONLY through contradictory testimonies:
+- No physical evidence required
+- No locked rooms or forensic clues
+- The truth emerges from timeline contradictions
 
-*Who Knows What:*
-- **Edmund** knows: He committed the murder, he staged the door lock, the argument was about allowance
-- **Clara** knows: She was upset about inheritance discussions, she was with Dr. Liu during the murder
-- **Marian** knows: Discovered the body, door was locked, heard raised voices earlier, saw Edmund agitated
-- **Dr. Liu** knows: Was with Clara during murder, observed Edmund's nervousness, heard the dinner argument
+*Critical Contradictions (these cannot all be true):*
+1. **Nathan claims:** "I never poured Elias a drink"
+2. **Lila witnessed:** "I saw Nathan refill Elias's glass"
+3. **Nathan claims:** "I left before Elias finished his wine"
+4. **Helena saw:** "Elias was still drinking after Nathan claims he left"
+5. **Arthur observed:** "Nathan and Elias were together longer than Nathan admits"
+
+*The NPCs:*
+- **Nathan Cross** (Killer): Composed, will lie about pouring wine and timeline
+- **Helena Morven** (Victim's sister): Emotional, saw Elias drinking late, can alibi Nathan for moment of death
+- **Arthur Bell** (Estate manager): Practical, truthful, saw Nathan with Elias longer than claimed
+- **Lila Chen** (Artist guest): Detached observer, witnessed Nathan refill Elias's glass, hesitant to accuse
 
 *Test Objectives:*
-- Edmund should lie about his whereabouts and deflect suspicion
-- Clara should be defensive and appear suspicious despite innocence
-- Marian should refuse to speculate without evidence
-- Dr. Liu should offer observations without making accusations
+- Nathan should lie about pouring wine and when he left the sitting room
+- Lila should reveal seeing Nathan pour wine if pressed, but hesitantly
+- Helena should confirm Nathan wasn't present at death (true but misdirection)
+- Arthur should contradict Nathan's timeline with precise observations
+- The investigation must expose contradictions through dialogue pressure
 
 ### Standalone Console Mode
 
@@ -137,22 +155,38 @@ world = WorldState()
 world.add_fact("murder_victim", "Lord Blackwood")
 world.add_fact("murder_location", "library")
 
+# Add timeline information
+world.add_schedule_entry(
+    "James",
+    day=1,
+    period="evening",
+    location="Pantry",
+    activity="Polishing silver",
+    is_public=True
+)
+
 # Create NPC
 butler = NPCAgent(
-    name="James the Butler",
-    personality="Formal, observant, loyal",
-    goals=["Protect the family reputation"],
-    fears=["Being blamed for the murder"],
-    secrets=["Saw the murderer enter the library"]
+    name="James",
+    personality="Formal, observant, loyal to the family",
+    background="Long-serving butler with access to all rooms",
+    goals=["Protect the family reputation", "Assist investigation professionally"],
+    fears=["Being blamed for the murder", "Family secrets exposed"],
+    secrets=["Saw the murderer enter the library at midnight"]
 )
 
 # Initialize engine
 engine = DialogueEngine(world)
 engine.add_npc(butler)
+engine.set_scene("Victorian manor house. You are investigating a murder.")
 
 # Start conversation
-response = engine.converse("butler", "Where were you last night?")
+response = engine.converse("James", "Where were you last night?")
 print(response)
+
+# Check for lies
+lies = engine.get_npc_lies("James")
+print(f"Detected lies: {lies}")
 ```
 
 ## Configuration
