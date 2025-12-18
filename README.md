@@ -1,5 +1,7 @@
 # Murder Mystery Dialogue Engine
 
+**Version 0.2.0**
+
 A drop-in dialogue engine that uses AI agents to represent NPCs in a murder mystery game. Supports free-form conversations with fact-checking against a world state. Created completely with AI (Claude Sonnet 4.5 mainly).
 
 ## Features

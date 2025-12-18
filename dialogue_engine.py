@@ -105,11 +105,14 @@ class DialogueEngine:
         # Sync NPC knowledge with world state
         self.sync_npc_knowledge(npc)
         
+        # Get full character knowledge including schedule
+        character_knowledge = self.world_state.export_character_knowledge(npc.name)
+        
         # Record player's message
         npc.add_conversation_turn(player_name, player_message)
         
-        # Generate AI prompt
-        prompt = npc.get_dialogue_prompt(player_message, self.current_scene)
+        # Generate AI prompt with character knowledge
+        prompt = npc.get_dialogue_prompt(player_message, self.current_scene, character_knowledge)
         
         if self.verbose:
             print(f"\n[Engine] Generating response for {npc.name}")

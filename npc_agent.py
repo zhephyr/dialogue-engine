@@ -150,15 +150,34 @@ class NPCAgent:
         }
     
     def get_dialogue_prompt(self, player_message: str, 
-                           scene_description: str = "") -> str:
+                           scene_description: str = "",
+                           character_knowledge: Optional[Dict[str, Any]] = None) -> str:
         """
         Generate a prompt for the AI to produce character-appropriate dialogue.
         This includes all character context and conversation history.
+        
+        Args:
+            player_message: What the player said
+            scene_description: Current scene context
+            character_knowledge: Optional knowledge export from world state (includes schedule)
         """
         context = self.get_character_context()
         recent_conv = self.get_recent_conversation()
         
-        prompt = f"""You are {self.name}, an NPC in a murder mystery game.
+        # Build schedule section if available
+        schedule_text = ""
+        if character_knowledge and "schedule" in character_knowledge:
+            schedule_entries = character_knowledge["schedule"]
+            if schedule_entries:
+                schedule_text = "\n\nYOUR SCHEDULE (where you were and what you were doing):\n"
+                for entry in schedule_entries:
+                    schedule_text += f"- {entry['time']}: {entry['location']} - {entry['activity']}"
+                    if entry['with']:
+                        schedule_text += f" (with {', '.join(entry['with'])})"
+                    schedule_text += "\n"
+                schedule_text += "\nIMPORTANT: Only claim to be in locations listed in your schedule. Be specific about times when asked."
+        
+        prompt = f"""You are {self.name}, an NPC in a murder mystery game set in Victorian England (1800s).
 
 CHARACTER PROFILE:
 - Personality: {self.personality}
@@ -179,7 +198,7 @@ RELATIONSHIPS:
 {chr(10).join(f"- {char}: {desc}" for char, desc in self.relationships.items())}
 
 WHAT YOU KNOW (facts you're aware of):
-{chr(10).join(f"- {key}: {value}" for key, value in self.known_facts.items())}
+{chr(10).join(f"- {key}: {value}" for key, value in self.known_facts.items())}{schedule_text}
 
 LIES YOU'VE TOLD RECENTLY:
 {chr(10).join(f"- {lie.content}" for lie in self.lies_told[-5:])}
@@ -197,12 +216,13 @@ PLAYER'S QUESTION/STATEMENT:
 {player_message}
 
 INSTRUCTIONS:
-1. Respond in character as {self.name}
+1. Respond in character as {self.name} in Victorian England (1800s)
 2. Stay true to your personality, goals, and fears
 3. You may choose to lie or omit information to protect your secrets or achieve your goals
-4. If you make a claim about facts, it should align with what you know OR be a deliberate deception
-5. Be natural and conversational
-6. Keep responses relatively brief (1-3 sentences typically)
+4. CRITICAL: When discussing times and locations, ONLY reference your schedule above
+5. If asked about a time not in your schedule, say you don't recall or be vague
+6. Be natural and conversational, using period-appropriate language
+7. Keep responses relatively brief (1-3 sentences typically)
 
 YOUR RESPONSE (as {self.name}):"""
 

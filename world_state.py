@@ -42,6 +42,35 @@ class Relationship(BaseModel):
     is_public: bool = True
 
 
+class TimeBlock(BaseModel):
+    """Represents a specific time period in the game"""
+    day: int  # Day number (1, 2, 3, etc.)
+    period: str  # "early_morning", "morning", "noon", "afternoon", "evening", "late_night", "overnight"
+    
+    def __str__(self) -> str:
+        return f"Day {self.day} - {self.period.replace('_', ' ').title()}"
+    
+    def __hash__(self) -> int:
+        return hash((self.day, self.period))
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, TimeBlock):
+            return False
+        return self.day == other.day and self.period == other.period
+
+
+class NPCScheduleEntry(BaseModel):
+    """Represents what an NPC was doing during a specific time block"""
+    character: str
+    time_block: TimeBlock
+    location: str
+    activity: str
+    with_characters: List[str] = Field(default_factory=list)  # Who else was present
+    is_public: bool = True  # Whether this information is commonly known
+    witnesses: List[str] = Field(default_factory=list)  # Who can verify this
+    notes: str = ""  # Additional context
+
+
 class WorldState:
     """
     Manages the state of the game world including all facts, events, and relationships.
@@ -54,6 +83,12 @@ class WorldState:
         self.relationships: List[Relationship] = []
         self.locations: Set[str] = set()
         self.characters: Set[str] = set()
+        
+        # Timeline and schedule tracking
+        self.npc_schedules: Dict[str, List[NPCScheduleEntry]] = {}  # character -> list of schedule entries
+        self.time_periods = ["early_morning", "morning", "noon", "afternoon", "evening", "late_night", "overnight"]
+        self.current_day = 1
+        self.current_period = "afternoon"
         
     def add_fact(self, key: str, value: Any, category: str = "general", 
                  is_public: bool = True, witnesses: Optional[List[str]] = None,
@@ -183,17 +218,129 @@ class WorldState:
     def add_character(self, character: str) -> None:
         """Register a character in the world"""
         self.characters.add(character)
+        if character not in self.npc_schedules:
+            self.npc_schedules[character] = []
+    
+    def add_schedule_entry(
+        self,
+        character: str,
+        day: int,
+        period: str,
+        location: str,
+        activity: str,
+        with_characters: Optional[List[str]] = None,
+        is_public: bool = True,
+        witnesses: Optional[List[str]] = None,
+        notes: str = ""
+    ) -> None:
+        """
+        Add a schedule entry for what an NPC was doing during a specific time period.
+        
+        Args:
+            character: Name of the character
+            day: Day number (1, 2, 3, etc.)
+            period: Time period ("early_morning", "morning", "noon", "afternoon", "evening", "late_night", "overnight")
+            location: Where the character was
+            activity: What they were doing
+            with_characters: Who else was present with them
+            is_public: Whether this is common knowledge
+            witnesses: Who can verify this (includes the character themselves by default)
+            notes: Additional context
+        """
+        if period not in self.time_periods:
+            raise ValueError(f"Invalid period '{period}'. Must be one of: {self.time_periods}")
+        
+        self.add_character(character)
+        
+        time_block = TimeBlock(day=day, period=period)
+        
+        # Add character to witnesses if not already there
+        all_witnesses = list(witnesses) if witnesses else []
+        if character not in all_witnesses:
+            all_witnesses.append(character)
+        
+        # Add companions to witnesses
+        for companion in (with_characters or []):
+            if companion not in all_witnesses:
+                all_witnesses.append(companion)
+        
+        entry = NPCScheduleEntry(
+            character=character,
+            time_block=time_block,
+            location=location,
+            activity=activity,
+            with_characters=with_characters or [],
+            is_public=is_public,
+            witnesses=all_witnesses,
+            notes=notes
+        )
+        
+        self.npc_schedules[character].append(entry)
+    
+    def get_character_schedule(self, character: str, day: Optional[int] = None) -> List[NPCScheduleEntry]:
+        """Get schedule entries for a character, optionally filtered by day"""
+        if character not in self.npc_schedules:
+            return []
+        
+        entries = self.npc_schedules[character]
+        
+        if day is not None:
+            entries = [e for e in entries if e.time_block.day == day]
+        
+        return sorted(entries, key=lambda e: (e.time_block.day, self.time_periods.index(e.time_block.period)))
+    
+    def get_character_location_at_time(self, character: str, day: int, period: str) -> Optional[str]:
+        """Get where a character was during a specific time period"""
+        entries = self.get_character_schedule(character, day)
+        for entry in entries:
+            if entry.time_block.period == period:
+                return entry.location
+        return None
+    
+    def get_characters_at_location_time(self, location: str, day: int, period: str) -> List[str]:
+        """Get all characters who were at a specific location during a time period"""
+        characters = []
+        for char in self.characters:
+            char_location = self.get_character_location_at_time(char, day, period)
+            if char_location == location:
+                characters.append(char)
+        return characters
+    
+    def verify_character_claim_time_location(
+        self,
+        character: str,
+        claimed_location: str,
+        day: int,
+        period: str
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Verify if a character's claim about their location at a specific time is accurate.
+        
+        Returns:
+            Tuple of (is_valid, actual_location)
+        """
+        actual_location = self.get_character_location_at_time(character, day, period)
+        
+        if actual_location is None:
+            return True, None  # No schedule entry, can't contradict
+        
+        is_valid = actual_location.lower() == claimed_location.lower()
+        return is_valid, actual_location
     
     def get_world_summary(self) -> Dict[str, Any]:
         """Get a summary of the current world state"""
+        total_schedule_entries = sum(len(entries) for entries in self.npc_schedules.values())
+        
         return {
             "total_facts": len(self.facts),
             "total_events": len(self.events),
             "total_relationships": len(self.relationships),
+            "total_schedule_entries": total_schedule_entries,
             "locations": list(self.locations),
             "characters": list(self.characters),
             "public_facts": len([f for f in self.facts.values() if f.is_public]),
-            "private_facts": len([f for f in self.facts.values() if not f.is_public])
+            "private_facts": len([f for f in self.facts.values() if not f.is_public]),
+            "current_time": f"Day {self.current_day} - {self.current_period}"
         }
     
     def export_character_knowledge(self, character: str) -> Dict[str, Any]:
@@ -209,6 +356,9 @@ class WorldState:
         known_events = self.get_events_with_character(character)
         
         relationships = self.get_relationships(character)
+        
+        # Get character's schedule
+        schedule = self.get_character_schedule(character)
         
         return {
             "character": character,
@@ -232,5 +382,15 @@ class WorldState:
                     "description": r.description
                 }
                 for r in relationships
+            ],
+            "schedule": [
+                {
+                    "time": str(entry.time_block),
+                    "location": entry.location,
+                    "activity": entry.activity,
+                    "with": entry.with_characters,
+                    "notes": entry.notes
+                }
+                for entry in schedule
             ]
         }

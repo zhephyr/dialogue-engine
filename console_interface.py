@@ -12,6 +12,7 @@ from world_state import WorldState
 from npc_agent import NPCAgent, CharacterTrait
 from colorama import init, Fore, Style
 import os
+from version import __version__
 
 # Initialize colorama for colored output
 try:
@@ -64,6 +65,7 @@ class ConsoleInterface:
     def show_welcome(self) -> None:
         """Show welcome message"""
         self.print_header("MURDER MYSTERY DIALOGUE ENGINE")
+        self.print_colored(f"Version {__version__}", Fore.CYAN)
         print("\nWelcome to the interactive dialogue console!")
         print("You can talk to NPCs and investigate the murder mystery.\n")
         print("Commands:")
@@ -72,6 +74,8 @@ class ConsoleInterface:
         print("  /status <npc>     - Show NPC status and stats")
         print("  /lies <npc>       - Show lies told by an NPC")
         print("  /history <npc>    - Show conversation history")
+        print("  /timeline [npc]   - Show timeline/schedule (all or specific NPC)")
+        print("  /setting          - Show setting and initial investigation report")
         print("  /scene <text>     - Set the current scene")
         print("  /world            - Show world state summary")
         print("  /stats            - Show engine statistics")
@@ -183,7 +187,155 @@ class ConsoleInterface:
             print(f"    Omissions: {fc['omissions']}")
             print(f"    Accuracy Rate: {fc['accuracy_rate']:.1f}%")
     
-    def handle_command(self, command: str) -> bool:
+    def show_setting(self) -> None:
+        """Show setting information and initial investigation report"""
+        world = self.engine.world_state
+        
+        # Get setting facts
+        time_period = world.get_fact("time_period") or "Unknown"
+        setting = world.get_fact("setting") or "Unknown location"
+        estate_name = world.get_fact("estate_name") or "Unknown estate"
+        estate_type = world.get_fact("estate_type") or "Unknown"
+        player_role = world.get_fact("player_role") or "Investigator"
+        
+        self.print_header("SETTING & INVESTIGATION BRIEFING")
+        
+        # Setting description
+        print(f"\n  TIME PERIOD: {time_period}")
+        print(f"  LOCATION: {estate_name}, {setting}")
+        print(f"  ESTATE TYPE: {estate_type}")
+        print(f"\n  YOUR ROLE: {player_role}")
+        
+        # Initial investigation report from on-site officer
+        self.print_colored("\n  === INITIAL INVESTIGATION REPORT ===", Fore.YELLOW)
+        self.print_colored("  From: On-site Officer", Fore.WHITE)
+        self.print_colored("  To: Investigating Detective\n", Fore.WHITE)
+        
+        # Get public murder facts
+        victim = world.get_fact("victim")
+        cause = world.get_fact("cause_of_death")
+        location = world.get_fact("murder_location")
+        time_of_death = world.get_fact("time_of_death")
+        discovered_by = world.get_fact("body_discovered_by")
+        discovery_time = world.get_fact("discovery_time")
+        door_locked = world.get_fact("door_locked")
+        
+        print(f"  VICTIM: {victim if victim else 'Unknown'}")
+        print(f"  CAUSE OF DEATH: {cause if cause else 'Under investigation'}")
+        print(f"  LOCATION: {location if location else 'Unknown'}")
+        print(f"  TIME OF DEATH: {time_of_death if time_of_death else 'Unknown'}")
+        print(f"\n  DISCOVERY:")
+        print(f"    - Body discovered by {discovered_by if discovered_by else 'unknown'} at {discovery_time if discovery_time else 'unknown time'}")
+        if door_locked:
+            print(f"    - {location} door found locked")
+        
+        # List occupants present
+        occupants = [char for char in world.characters if char != "Investigator"]
+        if occupants:
+            print(f"\n  OCCUPANTS PRESENT:")
+            for occupant in sorted(occupants):
+                print(f"    - {occupant}")
+        
+        # Public events
+        public_events = world.query_facts(category="murder", is_public=True)
+        if len(public_events) > 3:  # More than just basic facts
+            print(f"\n  ADDITIONAL NOTES:")
+            print(f"    - Multiple witnesses present at estate")
+            print(f"    - All occupants have been secured on premises")
+            print(f"    - Await your arrival to conduct interviews")
+        
+        print(f"\n  OBJECTIVE: Question all occupants and determine the perpetrator.")
+        print(f"\n  Use /npcs to see who you can interview.")
+        def show_timeline(self, npc_name: Optional[str] = None) -> None:
+        """Show timeline/schedule for all NPCs or a specific NPC"""
+        world = self.engine.world_state
+        
+        if npc_name:
+            # Show specific NPC's schedule
+            npc = self.engine.get_npc(npc_name)
+            if not npc:
+                self.print_system(f"NPC '{npc_name}' not found")
+                return
+            
+            schedule = world.get_character_schedule(npc.name)
+            if not schedule:
+                self.print_system(f"No schedule information for {npc.name}")
+                return
+            
+            self.print_header(f"TIMELINE: {npc.name}")
+            current_day = None
+            
+            for entry in schedule:
+                if entry.time_block.day != current_day:
+                    current_day = entry.time_block.day
+                    self.print_colored(f"\\n  === Day {current_day} ===", Fore.YELLOW)
+                
+                time_str = entry.time_block.period.replace('_', ' ').title()
+                print(f"\\n  {time_str}:")
+                print(f"    Location: {entry.location}")
+                print(f"    Activity: {entry.activity}")
+                
+                if entry.with_characters:
+                    print(f"    With: {', '.join(entry.with_characters)}")
+                
+                if entry.notes and not entry.is_public:
+                    # Only show notes if they're private (for testing/debugging)
+                    self.print_colored(f"    [Private Note: {entry.notes}]", Fore.MAGENTA)
+        else:
+            # Show timeline for all NPCs side-by-side
+            self.print_header("COMPLETE TIMELINE - ALL OCCUPANTS")
+            
+            # Get all characters except Investigator
+            characters = [c for c in world.characters if c != "Investigator"]
+            
+            if not characters:
+                self.print_system("No character schedules available")
+                return
+            
+            # Get all schedule entries
+            all_schedules = {}
+            for char in characters:
+                all_schedules[char] = world.get_character_schedule(char)
+            
+            # Group by day and time period
+            days = set()
+            for schedules in all_schedules.values():
+                for entry in schedules:
+                    days.add(entry.time_block.day)
+            
+            for day in sorted(days):
+                self.print_colored(f"\\n  === DAY {day} ===", Fore.YELLOW)
+                
+                for period in world.time_periods:
+                    # Check if any character has an entry for this period
+                    has_entries = any(
+                        any(e.time_block.day == day and e.time_block.period == period 
+                            for e in schedules)
+                        for schedules in all_schedules.values()
+                    )
+                    
+                    if not has_entries:
+                        continue
+                    
+                    period_name = period.replace('_', ' ').title()
+                    print(f"\\n  {period_name}:")
+                    
+                    for char in sorted(characters):
+                        schedules = all_schedules[char]
+                        entry = next(
+                            (e for e in schedules 
+                             if e.time_block.day == day and e.time_block.period == period),
+                            None
+                        )
+                        
+                        if entry:
+                            companions = f" (with {', '.join(entry.with_characters)})" if entry.with_characters else ""
+                            print(f"    {char:20s} -> {entry.location:15s} - {entry.activity}{companions}")
+                        else:
+                            print(f"    {char:20s} -> {'Unknown':15s}")
+            
+            print(f"\\n  Use /timeline <npc_name> to see detailed schedule for specific NPC.")
+        def handle_command(self, command: str) -> bool:
         """
         Handle a command. Returns True if command was processed.
         """
@@ -238,6 +390,11 @@ class ConsoleInterface:
                 self.show_history(arg)
             return True
         
+        elif cmd == '/timeline':
+            # arg is optional - can show all or specific NPC
+            self.show_timeline(arg if arg else None)
+            return True
+        
         elif cmd == '/scene':
             if not arg:
                 self.print_system("Usage: /scene <description>")
@@ -252,6 +409,10 @@ class ConsoleInterface:
         
         elif cmd == '/stats':
             self.show_stats()
+            return True
+        
+        elif cmd == '/setting':
+            self.show_setting()
             return True
         
         return False

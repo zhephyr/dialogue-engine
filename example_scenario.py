@@ -44,30 +44,123 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_fact("murder_weapon", "letter opener", category="murder", is_public=False, 
                    witnesses=["Marian", "Edmund Vale"])
     world.add_fact("cause_of_death", "stab wound", category="murder", is_public=True)
-    world.add_fact("time_of_death", "Evening", category="murder", is_public=True)
+    world.add_fact("time_of_death", "Day 1 - Evening", category="murder", is_public=True)
     world.add_fact("murder_location", "Study", category="murder", is_public=True)
     world.add_fact("door_locked", True, category="murder", is_public=True)
     world.add_fact("door_staged", True, category="murder", is_public=False,
                    witnesses=["Edmund Vale"])  # Only the murderer knows this
     world.add_fact("body_discovered_by", "Marian", category="murder", is_public=True)
-    world.add_fact("discovery_time", "Night", category="murder", is_public=True)
+    world.add_fact("discovery_time", "Day 1 - Late Night", category="murder", is_public=True)
     
-    # Character locations during key times
-    world.add_fact("edmund_location_dinner", "Dining Room", category="location", is_public=True)
-    world.add_fact("edmund_location_evening", "Study", category="location", is_public=False,
-                   witnesses=["Edmund Vale"])
-    world.add_fact("clara_location_evening", "Library", category="location", is_public=False,
-                   witnesses=["Clara Harrow", "Dr. Liu"])
-    world.add_fact("marian_location_evening", "Kitchen", category="location", is_public=False,
-                   witnesses=["Marian"])
-    world.add_fact("liu_location_evening", "Library", category="location", is_public=False,
-                   witnesses=["Clara Harrow", "Dr. Liu"])
+    # ========== EXPLICIT TIMELINE/SCHEDULE ==========
+    # Day 1 schedule for all NPCs - stating exactly where everyone was and what they were doing
+    
+    # AFTERNOON (before dinner)
+    world.add_schedule_entry("Edmund Vale", 1, "afternoon", "Library", 
+                            "Reading and contemplating financial troubles",
+                            is_public=False)
+    world.add_schedule_entry("Clara Harrow", 1, "afternoon", "Greenhouse",
+                            "Tending to plants, avoiding family",
+                            is_public=False)
+    world.add_schedule_entry("Marian", 1, "afternoon", "Kitchen",
+                            "Preparing for dinner service",
+                            is_public=True, witnesses=["Marian", "Kitchen Staff"])
+    world.add_schedule_entry("Dr. Liu", 1, "afternoon", "Library",
+                            "Reviewing business documents",
+                            with_characters=["Edmund Vale"],
+                            is_public=False, witnesses=["Dr. Liu", "Edmund Vale"],
+                            notes="Both present but did not interact much")
+    world.add_schedule_entry("Lord Harrow", 1, "afternoon", "Study",
+                            "Working on estate business",
+                            is_public=False)
+    
+    # EVENING - DINNER TIME (public event, all present)
+    world.add_schedule_entry("Edmund Vale", 1, "evening", "Dining Room",
+                            "Attending dinner, had public argument with Lord Harrow",
+                            with_characters=["Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"],
+                            is_public=True,
+                            witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"],
+                            notes="Heated argument about financial matters")
+    world.add_schedule_entry("Clara Harrow", 1, "evening", "Dining Room",
+                            "Attending dinner, witnessed argument",
+                            with_characters=["Edmund Vale", "Lord Harrow", "Marian", "Dr. Liu"],
+                            is_public=True,
+                            witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"])
+    world.add_schedule_entry("Marian", 1, "evening", "Dining Room",
+                            "Serving dinner, witnessed argument",
+                            with_characters=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Dr. Liu"],
+                            is_public=True,
+                            witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"])
+    world.add_schedule_entry("Dr. Liu", 1, "evening", "Dining Room",
+                            "Attending dinner as guest, witnessed argument",
+                            with_characters=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian"],
+                            is_public=True,
+                            witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"])
+    world.add_schedule_entry("Lord Harrow", 1, "evening", "Dining Room",
+                            "Hosting dinner, had argument with Edmund",
+                            with_characters=["Edmund Vale", "Clara Harrow", "Marian", "Dr. Liu"],
+                            is_public=True,
+                            witnesses=["Edmund Vale", "Lord Harrow", "Clara Harrow", "Marian", "Dr. Liu"])
+    
+    # LATE EVENING (after dinner, during murder)
+    # This is the critical period - murder occurs here
+    world.add_schedule_entry("Edmund Vale", 1, "late_night", "Study",
+                            "Private conversation with Lord Harrow, then committed murder",
+                            with_characters=["Lord Harrow"],
+                            is_public=False,
+                            witnesses=["Edmund Vale"],
+                            notes="MURDER OCCURS - Edmund stabs Lord Harrow with letter opener, then stages locked door")
+    world.add_schedule_entry("Lord Harrow", 1, "late_night", "Study",
+                            "Private conversation with Edmund Vale",
+                            with_characters=["Edmund Vale"],
+                            is_public=False,
+                            witnesses=["Edmund Vale"],
+                            notes="MURDERED by Edmund Vale")
+    world.add_schedule_entry("Clara Harrow", 1, "late_night", "Library",
+                            "Reading alone, upset from earlier family tensions",
+                            with_characters=["Dr. Liu"],
+                            is_public=False,
+                            witnesses=["Clara Harrow", "Dr. Liu"],
+                            notes="Alibi witness - was with Dr. Liu")
+    world.add_schedule_entry("Dr. Liu", 1, "late_night", "Library",
+                            "Reading, noticed Clara seemed distressed",
+                            with_characters=["Clara Harrow"],
+                            is_public=False,
+                            witnesses=["Dr. Liu", "Clara Harrow"],
+                            notes="Alibi witness - can confirm Clara's location")
+    world.add_schedule_entry("Marian", 1, "late_night", "Kitchen",
+                            "Cleaning up after dinner service",
+                            is_public=False,
+                            witnesses=["Marian"],
+                            notes="No alibi witness, but discovers body later")
+    
+    # OVERNIGHT (body discovery)
+    world.add_schedule_entry("Marian", 1, "overnight", "Study",
+                            "Discovered Lord Harrow's body, door was locked",
+                            is_public=True,
+                            witnesses=["Marian"],
+                            notes="Discovery of the body - raised alarm")
+    world.add_schedule_entry("Edmund Vale", 1, "overnight", "Library",
+                            "Claimed to be reading when alarm raised",
+                            is_public=False,
+                            witnesses=["Edmund Vale"])
+    world.add_schedule_entry("Clara Harrow", 1, "overnight", "Foyer",
+                            "Responded to alarm, shocked by news",
+                            is_public=True,
+                            witnesses=["Clara Harrow", "Edmund Vale", "Dr. Liu", "Marian"])
+    world.add_schedule_entry("Dr. Liu", 1, "overnight", "Foyer",
+                            "Responded to alarm",
+                            is_public=True,
+                            witnesses=["Clara Harrow", "Edmund Vale", "Dr. Liu", "Marian"])
+    
+    # Remove old location facts (replaced by schedule system)
+    # Keeping events for now as they provide narrative context
     
     # Key events
     world.add_event(
         event_id="dinner_argument",
         description="Edmund Vale and Lord Harrow had a heated public argument during dinner",
-        timestamp="Dinner",
+        timestamp="Day 1 - Evening",
         location="Dining Room",
         participants=["Edmund Vale", "Lord Harrow"],
         witnesses=["Clara Harrow", "Marian", "Dr. Liu"],
@@ -81,7 +174,7 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_event(
         event_id="edmund_with_victim",
         description="Edmund Vale was alone with Lord Harrow in the study",
-        timestamp="Evening (before murder)",
+        timestamp="Day 1 - Late Night (before murder)",
         location="Study",
         participants=["Edmund Vale", "Lord Harrow"],
         witnesses=["Edmund Vale"],
@@ -94,7 +187,7 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_event(
         event_id="murder",
         description="Lord Harrow was stabbed with a letter opener in the study",
-        timestamp="Evening",
+        timestamp="Day 1 - Late Night",
         location="Study",
         participants=["Edmund Vale", "Lord Harrow"],
         witnesses=["Edmund Vale"],  # Only the murderer witnessed it
@@ -108,7 +201,7 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_event(
         event_id="body_discovery",
         description="Marian discovered Lord Harrow's body in the locked study",
-        timestamp="Night",
+        timestamp="Day 1 - Overnight",
         location="Study",
         participants=["Marian"],
         witnesses=["Marian"],
@@ -121,7 +214,7 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_event(
         event_id="clara_upset",
         description="Clara Harrow was visibly upset during the evening",
-        timestamp="Evening",
+        timestamp="Day 1 - Late Night",
         location="Library",
         participants=["Clara Harrow"],
         witnesses=["Dr. Liu", "Clara Harrow"],
