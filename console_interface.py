@@ -246,7 +246,8 @@ class ConsoleInterface:
         
         print(f"\n  OBJECTIVE: Question all occupants and determine the perpetrator.")
         print(f"\n  Use /npcs to see who you can interview.")
-        def show_timeline(self, npc_name: Optional[str] = None) -> None:
+        
+    def show_timeline(self, npc_name: Optional[str] = None) -> None:
         """Show timeline/schedule for all NPCs or a specific NPC"""
         world = self.engine.world_state
         
@@ -335,7 +336,8 @@ class ConsoleInterface:
                             print(f"    {char:20s} -> {'Unknown':15s}")
             
             print(f"\\n  Use /timeline <npc_name> to see detailed schedule for specific NPC.")
-        def handle_command(self, command: str) -> bool:
+            
+    def handle_command(self, command: str) -> bool:
         """
         Handle a command. Returns True if command was processed.
         """
