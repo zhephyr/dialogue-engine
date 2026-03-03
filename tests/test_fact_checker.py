@@ -282,3 +282,65 @@ def test_arbitrary_claim_key_does_not_collide_with_world_fact(populated_world):
     )
 
 
+def test_location_claim_underscore_normalises_to_space(populated_world):
+    """
+    REGRESSION: AI-extracted location values sometimes use underscore-formatted
+    names (e.g. 'sitting_room') derived from how the AI interprets a location name.
+    The world state stores locations with spaces ('Sitting Room').
+
+    Fix: validate_claim must also replace underscores with spaces when normalising
+    location values before comparison.
+    """
+    populated_world.add_location("Sitting Room")
+    fc = FactChecker(populated_world)
+    npc = NPCAgent("Alice", "Friendly librarian")
+
+    # Underscore-formatted location should still match 'Sitting Room'
+    claim = Claim(
+        "I stepped away from the sitting_room",
+        "location",
+        "mentioned_location",
+        "sitting_room"
+    )
+    result = fc.validate_claim(claim, npc)
+
+    assert result.is_valid is True, (
+        "Location value 'sitting_room' must match world location 'Sitting Room' "
+        "after underscore-to-space normalisation. "
+        f"Got reason: {result.reason}"
+    )
+
+
+def test_person_claim_possessive_phrase_not_matched(populated_world):
+    """
+    REGRESSION: The person validation fuzzy match splits the claimed_value by
+    whitespace and checks if any word appears in a character's full name.
+    A phrase like 'my brother' splits into ['my', 'brother'], and if 'brother'
+    happened to be a substring of a character name OR matched via the 'in' operator,
+    it would create a spurious person match.
+
+    Verify that purely relational/possessive phrases ('my brother', 'her sister',
+    'the victim') do NOT match any character in world state.
+    """
+    # No character named 'brother', 'my', or similar
+    fc = FactChecker(populated_world)
+    npc = NPCAgent("Alice", "Friendly librarian")
+
+    claim = Claim(
+        "My thoughts were consumed with the company of my brother.",
+        "person",
+        "mentioned_person",
+        "my brother"
+    )
+    result = fc.validate_claim(claim, npc)
+
+    # 'my brother' is not a known character — must be rejected (not valid)
+    # so it falls through to the 'new information' else branch
+    assert result.is_valid is False, (
+        "The phrase 'my brother' must not fuzzy-match any known character. "
+        "validate_claim should mark it invalid so the caller can decide to ignore it. "
+        f"Got reason: {result.reason}"
+    )
+
+
+

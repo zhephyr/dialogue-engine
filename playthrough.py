@@ -23,27 +23,37 @@ from example_scenario import create_example_scenario
 from fact_checker import FactChecker, IntentionAnalyzer
 
 
-# Focused 3-question scripts per NPC — keeps total API calls to ~12
+# 4 questions per NPC: first 3 target the known contradictions; the 4th
+# asks something NOT covered by world state to generate a genuinely new fact
+# and stress-test the 'new information' path.
 INTERROGATION_SCRIPT = {
     "Nathan Cross": [
         "Did you pour or refill Elias's wine glass at any point during the evening?",
         "When exactly did you leave the sitting room? Were you there long after the gathering started?",
         "Where were you when Elias collapsed in the gallery?",
+        # NEW-FACT question — Nathan's personal impression of the evening's atmosphere
+        "How would you describe the mood of the gathering before anything went wrong? Did anything feel unusual to you?",
     ],
     "Lila Chen": [
         "Did you observe Nathan Cross do anything with Elias Morven's wine glass during the gathering?",
         "Can you describe what you saw Nathan do near the wine, if anything?",
         "When did Nathan Cross appear to leave the sitting room that evening?",
+        # NEW-FACT question — Lila's artistic observation of the room layout
+        "As an artist you notice visual details. Can you describe the arrangement of people in the sitting room during the gathering?",
     ],
     "Helena Morven": [
         "Did you see Elias drinking wine after the main gathering in the sitting room had broken up?",
         "Can you confirm where Nathan Cross was when Elias collapsed?",
         "Did Nathan tell you when he left the main gathering in the sitting room?",
+        # NEW-FACT question — Helena's last personal conversation with Elias
+        "What was the last conversation you had with your brother Elias before he collapsed? What did he say?",
     ],
     "Arthur Bell": [
         "Did you observe Nathan Cross and Elias Morven together in the sitting room during the evening?",
         "How long did Nathan Cross appear to remain in the sitting room during the gathering?",
         "When did you discover Elias Morven had collapsed, and where?",
+        # NEW-FACT question — Arthur's professional assessment of the estate that evening
+        "In your role managing the estate, did anything seem out of order during the evening before Mr. Morven collapsed?",
     ],
 }
 
@@ -149,6 +159,11 @@ def run_playthrough():
 
     # Validate each captured NPC response against world state
     npc_map = engine.npcs  # {lowercased_name: NPCAgent}
+
+    # Snapshot world-state fact keys BEFORE post-hoc validation so we can
+    # identify which new facts get added during the scan.
+    pre_scan_keys = set(engine.world_state.facts.keys())
+
     for npc_name, responses in all_responses.items():
         npc = engine.get_npc(npc_name)
         if not npc:
@@ -166,6 +181,18 @@ def run_playthrough():
                         "reason": r.reason,
                     })
                     print(f"  ⚠️  HARD CONTRADICTION [{npc_name}]: '{r.claim['claim_text']}' — {r.reason}")
+
+    # Identify new facts harvested from NPC dialogue
+    post_scan_keys = set(engine.world_state.facts.keys())
+    new_fact_keys = post_scan_keys - pre_scan_keys
+    new_facts = [
+        {
+            "key": k,
+            "value": engine.world_state.facts[k].value,
+            "source": engine.world_state.facts[k].source,
+        }
+        for k in sorted(new_fact_keys)
+    ]
 
     # Also run the design-level cross-check
     design_contradictions = batch_cross_check(all_responses, engine)
@@ -189,6 +216,10 @@ def run_playthrough():
         print(f"  • [{dc['type']}] {dc['npc']}: {dc['claim']}")
         print(f"    ↳ Contradicted by: {dc['contradicted_by']}")
 
+    print(f"\n🆕 NEW FACTS HARVESTED FROM NPC DIALOGUE: {len(new_facts)}")
+    for nf in new_facts:
+        print(f"  • [{nf['source']}] {nf['key']}: {str(nf['value'])[:80]}")
+
     # Write full log
     log_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "playthrough_log.json"
@@ -199,6 +230,7 @@ def run_playthrough():
                 "responses": all_responses,
                 "hard_contradictions": hard_contradictions,
                 "design_contradictions": design_contradictions,
+                "new_facts": new_facts,
             },
             f,
             indent=2,

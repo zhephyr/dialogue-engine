@@ -175,11 +175,14 @@ JSON:"""
         reason = ""
         
         # For location claims, verify the location exists.
-        # Normalise by stripping leading articles ('the', 'a', 'an') and comparing
-        # case-insensitively so that 'the gallery' matches 'Gallery'.
+        # Normalise by:
+        #   - Replacing underscores with spaces ('sitting_room' → 'sitting room')
+        #   - Stripping leading articles ('the', 'a', 'an')
+        #   - Case-insensitive comparison
+        # So 'the gallery', 'Gallery', and 'sitting_room' all resolve correctly.
         if category == "location":
             _ARTICLES = re.compile(r'^(?:the|a|an)\s+', re.IGNORECASE)
-            normalised = _ARTICLES.sub("", str(claimed_value)).strip().lower()
+            normalised = _ARTICLES.sub("", str(claimed_value).replace("_", " ")).strip().lower()
             matched_loc = next(
                 (loc for loc in self.world_state.locations if loc.lower() == normalised),
                 None
@@ -196,14 +199,31 @@ JSON:"""
         #   - First-name-only mentions  ('Elias'  → 'Elias Morven')
         #   - Honorific prefixes        ('Mr. Cross' → 'Nathan Cross')
         #   - Multi-person AI extracts  ('Mr. Nathan Cross and Mr. Elias Morven')
+        # Filter: skip relational/possessive/article words that are common noise tokens
+        # ('my', 'her', 'his', 'the', 'a', 'an', 'our') so that phrases like
+        # 'my brother' do NOT spuriously match character-name components.
         elif category == "person":
+            _NOISE = {
+                "my", "her", "his", "the", "a", "an", "our", "their",
+                "your", "its", "this", "that"
+            }
             claimed_lower = str(claimed_value).lower()
-            matched_char = next(
-                (char for char in self.world_state.characters
-                 if any(part.lower() in claimed_lower or claimed_lower in part.lower()
-                        for part in char.split())),
-                None
-            )
+            # Only test words from claimed_value that are NOT noise words
+            signal_words = [
+                w for w in claimed_lower.split()
+                if w not in _NOISE and len(w) >= 3
+            ]
+            matched_char = None
+            if signal_words:
+                matched_char = next(
+                    (char for char in self.world_state.characters
+                     if any(
+                         part.lower() in signal_words or
+                         any(sw in part.lower() for sw in signal_words)
+                         for part in char.split()
+                     )),
+                    None
+                )
             if matched_char:
                 is_valid = True
                 reason = "Character exists in world"
