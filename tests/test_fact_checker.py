@@ -158,3 +158,127 @@ def test_analyze_for_deception_with_real_ai_provider(populated_world, npc_alice)
     # The omission identified by the AI must be returned
     assert any("victim" in omission for omission in omissions), \
         f"Expected omission to be detected; got omissions={omissions}"
+
+
+# --- Regression Tests (bugs found during Phase 2 playthrough) ---
+
+def test_person_claim_matches_full_name_characters(populated_world):
+    """
+    REGRESSION: The heuristic person-mention pattern matched single-word tokens
+    (e.g. 'Elias') against world_state.characters which stores full names
+    (e.g. 'Elias Morven'), causing every first-name mention to trigger a false
+    'character does not exist' contradiction.
+
+    Fix: extract_claims_from_statement must match first-name tokens against
+    the full-name character set using a first-name prefix check,
+    OR skip person claims when the single token does not match any full name.
+    """
+    # Add a two-word character to the world
+    populated_world.add_character("John Smith")
+    fc = FactChecker(populated_world)
+
+    # Statement uses first name only — should NOT produce a contradiction
+    statement = "I saw John in the library yesterday."
+    claims = fc.extract_claims_from_statement(statement)
+
+    person_claims = [c for c in claims if c["category"] == "person"]
+    for claim in person_claims:
+        # Every extracted person claim must reference a known character (full name)
+        assert claim["value"] in populated_world.characters, (
+            f"Extracted person '{claim['value']}' is not in world_state.characters. "
+            f"Heuristic must resolve first-name tokens to known full names."
+        )
+
+
+def test_location_claim_article_prefix_is_stripped(populated_world):
+    """
+    REGRESSION: Location validation compared 'the gallery' against 'Gallery'
+    in world_state.locations and failed because the leading article 'the'
+    was not stripped and the case differed.
+
+    Fix: validate_claim must normalise location values by stripping leading
+    articles ('the', 'a', 'an') and comparing case-insensitively.
+    """
+    populated_world.add_location("Gallery")
+    fc = FactChecker(populated_world)
+    npc = NPCAgent("Alice", "Friendly librarian")
+
+    # Claim value includes the article — must still be valid
+    claim = Claim("found in the gallery", "location", "mentioned_location", "gallery")
+    result = fc.validate_claim(claim, npc)
+
+    assert result.is_valid is True, (
+        "Location claim 'gallery' (without 'the') should match world location 'Gallery' "
+        "case-insensitively. validate_claim must strip leading articles and ignore case."
+    )
+
+
+def test_person_pattern_does_not_produce_noncharacter_claims(populated_world):
+    """
+    REGRESSION: The overly-broad second person pattern
+    r'(\\w+) (?:was|is) (?:there|here|present)' captured entire sentence
+    fragments (e.g. 'Elias collapsed.') as person-name candidates and then
+    flagged them as contradictions because they weren't in world_state.characters.
+
+    Fix: extract_claims_from_statement must only emit a person claim when
+    the extracted token actually matches a known character (full or first name).
+    No spurious claims for unknown words.
+    """
+    fc = FactChecker(populated_world)
+
+    # Statement where group(1) captures a non-character word
+    statement = "The situation was very tense and everyone was present."
+    claims = fc.extract_claims_from_statement(statement)
+
+    person_claims = [c for c in claims if c["category"] == "person"]
+    for claim in person_claims:
+        assert claim["value"] in populated_world.characters, (
+            f"Spurious person claim '{claim['value']}' extracted for non-character word. "
+            f"Only known characters should produce person claims."
+        )
+
+
+def test_arbitrary_claim_key_does_not_collide_with_world_fact(populated_world):
+    """
+    REGRESSION: During playthrough, NPC-statement-derived facts are stored in
+    world_state (via the 'new information' path). If a subsequent NPC claim shares
+    the same key, it must NOT be validated against that NPC-derived stored value as
+    if it were a world-engine fact.
+
+    Only facts with source='world' (world-engine authored) should gate claim validation.
+    NPC-statement-derived facts (source='Statement by <NPC>') must be bypassed.
+
+    Fix: validate_claim only validates via world-state key lookup when the stored
+    fact has source=='world'.
+    """
+    # Simulate a fact that was previously stored by an NPC statement, not the world engine.
+    # This mimics what happens when the 'new information' path adds a fact for NPC A,
+    # and then NPC B's response later has a claim with the same base key.
+    populated_world.add_fact(
+        "emotional_state",
+        "worried",
+        is_public=True,
+        source="Statement by Nathan Cross"   # NOT world-engine authored
+    )
+
+    fc = FactChecker(populated_world)
+    npc = NPCAgent("Alice", "Friendly librarian")
+
+    # Claim with same key as the NPC-derived stored fact, different value —
+    # must be treated as new information, not a contradiction.
+    claim = Claim(
+        "I cannot shake the dread",
+        "other",
+        "emotional_state",   # same key as NPC-authored fact above
+        "something terrible had occurred"
+    )
+    result = fc.validate_claim(claim, npc)
+
+    # Must be treated as new information, not a contradiction
+    assert result.is_valid is True, (
+        "A claim whose key matches a world-state fact authored by an NPC statement "
+        "(not the world engine) must be treated as new information, not a contradiction. "
+        f"Got reason: {result.reason}"
+    )
+
+

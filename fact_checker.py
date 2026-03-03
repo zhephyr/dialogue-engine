@@ -174,26 +174,52 @@ JSON:"""
         world_truth = None
         reason = ""
         
-        # For location claims, verify the location exists
+        # For location claims, verify the location exists.
+        # Normalise by stripping leading articles ('the', 'a', 'an') and comparing
+        # case-insensitively so that 'the gallery' matches 'Gallery'.
         if category == "location":
-            if claimed_value.lower() in [loc.lower() for loc in self.world_state.locations]:
+            _ARTICLES = re.compile(r'^(?:the|a|an)\s+', re.IGNORECASE)
+            normalised = _ARTICLES.sub("", str(claimed_value)).strip().lower()
+            matched_loc = next(
+                (loc for loc in self.world_state.locations if loc.lower() == normalised),
+                None
+            )
+            if matched_loc:
                 is_valid = True
                 reason = "Location exists in world"
-                world_truth = claimed_value
+                world_truth = matched_loc
             else:
                 reason = f"Location '{claimed_value}' does not exist in world state"
         
-        # For person mentions, verify the person exists
+        # For person mentions, verify the person (or a known character whose full name
+        # contains the claimed value) exists.  This handles:
+        #   - First-name-only mentions  ('Elias'  → 'Elias Morven')
+        #   - Honorific prefixes        ('Mr. Cross' → 'Nathan Cross')
+        #   - Multi-person AI extracts  ('Mr. Nathan Cross and Mr. Elias Morven')
         elif category == "person":
-            if claimed_value in self.world_state.characters:
+            claimed_lower = str(claimed_value).lower()
+            matched_char = next(
+                (char for char in self.world_state.characters
+                 if any(part.lower() in claimed_lower or claimed_lower in part.lower()
+                        for part in char.split())),
+                None
+            )
+            if matched_char:
                 is_valid = True
                 reason = "Character exists in world"
-                world_truth = claimed_value
+                world_truth = matched_char
             else:
                 reason = f"Character '{claimed_value}' does not exist in world state"
         
-        # For specific fact keys, check against world state
-        elif key in self.world_state.facts:
+        # For specific fact keys, check against world state ONLY when the stored fact
+        # was authored by the world engine itself (source="world").
+        # NPC-statement-derived claims must never be validated against world facts by key
+        # because AI-extracted keys are arbitrary and may accidentally collide with
+        # world-engine fact keys, causing false contradiction errors.
+        elif (
+            key in self.world_state.facts
+            and self.world_state.facts[key].source == "world"
+        ):
             world_truth = self.world_state.get_fact(key)
             if str(world_truth).lower() == str(claimed_value).lower():
                 is_valid = True
@@ -201,13 +227,10 @@ JSON:"""
             else:
                 reason = f"Contradicts world state. Truth: {world_truth}"
         
-        # Unknown claims are allowed (new information). We add these to the timeline.
+        # Unknown / AI-generated claims are treated as new information.
+        # Always add under a UUID-suffixed key to prevent future key collisions.
         else:
-            fact_key = key
-            # Generate a unique key if it uses a generic key template
-            if fact_key in ["mentioned_time", "mentioned_location", "mentioned_person"]:
-                fact_key = f"{key}_{str(uuid.uuid4())[:8]}"
-                
+            fact_key = f"{key}_{str(uuid.uuid4())[:8]}"
             self.world_state.add_fact(
                 key=fact_key,
                 value=claimed_value,
