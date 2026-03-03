@@ -10,6 +10,7 @@ from world_state import WorldState
 from npc_agent import NPCAgent
 import re
 import uuid
+import json
 
 
 class Claim(Dict):
@@ -51,17 +52,46 @@ class FactChecker:
     Tracks intentional lies and omissions.
     """
     
-    def __init__(self, world_state: WorldState):
+    def __init__(self, world_state: WorldState, ai_provider: Optional[Any] = None):
         self.world_state = world_state
+        self.ai_provider = ai_provider
         self.validation_history: List[ValidationResult] = []
     
     def extract_claims_from_statement(self, statement: str) -> List[Claim]:
         """
         Extract factual claims from a statement.
-        In a full implementation, this would use AI to parse natural language.
-        For now, we'll use pattern matching and simple heuristics.
+        Uses an AIProvider if configured (and not mock), otherwise falls back 
+        to pattern matching heuristics.
         """
         claims = []
+        
+        # Check if we should attempt AI-based extraction
+        if self.ai_provider and self.ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
+            prompt = f"""Extract standalone factual claims from this statement: "{statement}"
+Return ONLY a valid JSON list of objects. Each object should have:
+- claim_text: The exact string representing the claim
+- category: 'location', 'time', 'person', 'event', or 'other'
+- key: A simple snake_case key categorizing this fact (e.g., 'mentioned_location')
+- value: The exact target of the claim
+If no facts, return an empty list [].
+JSON:"""
+            try:
+                ai_result = self.ai_provider.generate_response(prompt, max_tokens=300)
+                # Cleanup potential markdown ticks
+                content = ai_result.replace("```json", "").replace("```", "").strip()
+                data = json.loads(content)
+                if isinstance(data, list):
+                    for item in data:
+                        claims.append(Claim(
+                            claim_text=item.get("claim_text", statement),
+                            category=item.get("category", "other"),
+                            key=item.get("key", "unknown"),
+                            value=item.get("value", "")
+                        ))
+                    return claims
+            except Exception as e:
+                # Fall back to heuristic pattern matching if AI fails or returns invalid format
+                pass
         
         # Pattern matching for common claim types
         # Location claims: "I was in the library", "I saw him in the garden"
@@ -284,7 +314,8 @@ class IntentionAnalyzer:
     def analyze_for_deception(
         statement: str,
         character: NPCAgent,
-        world_state: WorldState
+        world_state: WorldState,
+        ai_provider: Optional[Any] = None
     ) -> Tuple[List[str], List[str]]:
         """
         Analyze a statement to identify potential lies and omissions.
@@ -292,12 +323,13 @@ class IntentionAnalyzer:
         Returns:
             Tuple of (likely_lies, likely_omissions)
         """
-        # This is a placeholder. In a full implementation, this would:
-        # 1. Compare the statement against character's known facts
-        # 2. Check if the character has secrets related to the topic
-        # 3. Analyze if the response avoids certain topics
-        # 4. Use AI to identify evasive language
-        
+        # Full Implementation Placeholder:
+        # 1. Provide Context to AI provider
+        # 2. Extract specific deceptive text blocks
+        if ai_provider and ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
+            # Setup AI prompt logic here
+            pass
+
         likely_lies = []
         likely_omissions = []
         

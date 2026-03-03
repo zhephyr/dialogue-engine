@@ -37,11 +37,10 @@ class DialogueEngine:
             verbose: Print debug information
         """
         load_dotenv()  # Load environment variables
-        
         self.world_state = world_state
         self.npcs: Dict[str, NPCAgent] = {}
-        self.fact_checker = FactChecker(world_state) if enable_fact_checking else None
         self.ai_provider = ai_provider or get_ai_provider()
+        self.fact_checker = FactChecker(self.world_state, self.ai_provider) if enable_fact_checking else None
         self.verbose = verbose
         self.current_scene = ""
         
@@ -136,15 +135,15 @@ class DialogueEngine:
         if self.fact_checker:
             # Check for potential deceptions
             likely_lies, likely_omissions = IntentionAnalyzer.analyze_for_deception(
-                npc_response, npc, self.world_state
+                npc_response, npc, self.world_state, self.ai_provider
             )
             
             # Validate the statement
             is_valid, validation_results = self.fact_checker.validate_statement(
                 npc_response,
                 npc,
-                marked_lies=[],  # In a full implementation, these would come from AI
-                marked_omissions=[]
+                marked_lies=likely_lies,
+                marked_omissions=likely_omissions
             )
             
             # Track lies and omissions in NPC memory
