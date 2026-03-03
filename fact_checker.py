@@ -9,6 +9,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from world_state import WorldState
 from npc_agent import NPCAgent
 import re
+import uuid
 
 
 class Claim(Dict):
@@ -211,13 +212,27 @@ class FactChecker:
                     is_lie=True  # Unintentional lie / error
                 )
         
-        # Unknown claims are allowed (new information)
+        # Unknown claims are allowed (new information). We add these to the timeline.
         else:
+            fact_key = key
+            # Generate a unique key if it uses a generic key template
+            if fact_key in ["mentioned_time", "mentioned_location", "mentioned_person"]:
+                fact_key = f"{key}_{str(uuid.uuid4())[:8]}"
+                
+            self.world_state.add_fact(
+                key=fact_key,
+                value=claimed_value,
+                category=category,
+                is_public=True,
+                witnesses=[character.name],
+                source=f"Statement by {character.name}"
+            )
+
             result = ValidationResult(
                 is_valid=True,
                 claim=claim,
-                reason="No contradiction with known facts",
-                world_truth=None
+                reason="New information added to world state",
+                world_truth=claimed_value
             )
         
         self.validation_history.append(result)

@@ -93,7 +93,7 @@ class WorldState:
         
         # Timeline and schedule tracking
         self.npc_schedules: Dict[str, List[NPCScheduleEntry]] = {}  # character -> list of schedule entries
-        self.time_periods = ["early_morning", "morning", "noon", "afternoon", "evening", "late_night", "overnight"]
+        self.time_periods = ["early_morning", "morning", "noon", "afternoon", "early_evening", "evening", "night", "late_night", "overnight"]
         self.current_day = 1
         self.current_period = "afternoon"
         
