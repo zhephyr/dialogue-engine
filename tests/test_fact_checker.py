@@ -335,11 +335,23 @@ def test_person_claim_possessive_phrase_not_matched(populated_world):
     result = fc.validate_claim(claim, npc)
 
     # 'my brother' is not a known character — must be rejected (not valid)
-    # so it falls through to the 'new information' else branch
     assert result.is_valid is False, (
         "The phrase 'my brother' must not fuzzy-match any known character. "
-        "validate_claim should mark it invalid so the caller can decide to ignore it. "
         f"Got reason: {result.reason}"
+    )
+
+    # Also cover the honorific-adjective variant: 'my dear brother'
+    claim2 = Claim(
+        "It pains me deeply to think of what happened to my dear brother.",
+        "person",
+        "mentioned_person",
+        "dear brother"
+    )
+    result2 = fc.validate_claim(claim2, npc)
+
+    assert result2.is_valid is False, (
+        "The phrase 'dear brother' must not fuzzy-match any known character. "
+        f"Got reason: {result2.reason}"
     )
 
 

@@ -204,8 +204,16 @@ JSON:"""
         # 'my brother' do NOT spuriously match character-name components.
         elif category == "person":
             _NOISE = {
+                # Articles and determiners
                 "my", "her", "his", "the", "a", "an", "our", "their",
-                "your", "its", "this", "that"
+                "your", "its", "this", "that",
+                # Relational honorifics / adjectives common in Victorian dialogue
+                "dear", "poor", "late", "beloved", "good", "old", "young",
+                "great", "kind", "unfortunate", "wretched",
+                # Kinship and role nouns that are never character proper-names
+                "brother", "sister", "mother", "father", "son", "daughter",
+                "victim", "host", "guest", "man", "woman", "person",
+                "sir", "mr", "mrs", "miss", "lord", "lady",
             }
             claimed_lower = str(claimed_value).lower()
             # Only test words from claimed_value that are NOT noise words
