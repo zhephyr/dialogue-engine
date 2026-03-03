@@ -1,0 +1,312 @@
+{
+  "responses": {
+    "Nathan Cross": [
+      {
+        "question": "Did you pour or refill Elias's wine glass at any point during the evening?",
+        "response": "I assure you, I did not pour or refill Elias's wine glass at any point during the evening. You see, I had taken my leave from the sitting room long before he should have finished his drink. Such accusations are quite unfounded, I assure you."
+      },
+      {
+        "question": "When exactly did you leave the sitting room? Were you there long after the gathering started?",
+        "response": "Ah, my dear investigator, I must clarify that I left the sitting room quite early in the evening. The gathering had just commenced when I excused myself\u2014no more than twenty minutes after my arrival, I would say. I found myself in the dining room shortly thereafter, where I was engaged in conversation with Helena."
+      },
+      {
+        "question": "Where were you when Elias collapsed in the gallery?",
+        "response": "Ah, I was in the dining room, conversing with Helena, when poor Elias collapsed in the gallery. I assure you, I had excused myself from the sitting room some time before the incident occurred. It is quite distressing to think such a tragic event could unfold in our midst."
+      },
+      {
+        "question": "How would you describe the mood of the gathering before anything went wrong? Did anything feel unusual to you?",
+        "response": "Ah, the mood of the gathering was rather jovial, I must say. There was much laughter and spirited conversation, as one would expect at such an esteemed event. However, one could argue that the air was thick with an unspoken tension, as if everyone was acutely aware of the evening's stakes\u2014albeit, I felt no particular foreboding myself. It is truly unsettling that such a tragic incident could occur amidst what was otherwise a delightful soir\u00e9e."
+      }
+    ],
+    "Lila Chen": [
+      {
+        "question": "Did you observe Nathan Cross do anything with Elias Morven's wine glass during the gathering?",
+        "response": "Ah, yes, I did witness Nathan refill Elias's glass in the sitting room, though I thought little of it at the time. It struck me as mere hospitality, nothing more. I must admit, I did not understand the significance of that moment until after the unfortunate incident."
+      },
+      {
+        "question": "Can you describe what you saw Nathan do near the wine, if anything?",
+        "response": "Ah, well, as I mentioned earlier, I distinctly observed Nathan refill Elias's glass in the sitting room. It was during the early evening, and I thought it rather courteous of him at the time. Regrettably, I did not pay much heed to it then, and now, in light of recent events, the memory weighs heavily upon me."
+      },
+      {
+        "question": "When did Nathan Cross appear to leave the sitting room that evening?",
+        "response": "I cannot be entirely certain of the exact moment Nathan departed the sitting room, as my focus was on the lively conversation at the time. However, I do recall that he was present until shortly before Elias collapsed, having engaged with the other guests, including Helena and Arthur. It was after I stepped outside for some fresh air that I became unaware of his whereabouts."
+      },
+      {
+        "question": "As an artist you notice visual details. Can you describe the arrangement of people in the sitting room during the gathering?",
+        "response": "Ah, the arrangement in the sitting room was quite lively, I recall. Nathan was engaged in conversation with Elias, while Helena leaned slightly towards them, her demeanor attentive. Arthur was stationed near the hearth, observing the exchange. The atmosphere felt convivial, with laughter and soft murmurs filling the air, a delightful backdrop to the evening's gathering.  However, I must confess that my focus was divided, as I was absorbed in the artistry of the moment rather than the precise placements of each guest."
+      }
+    ],
+    "Helena Morven": [
+      {
+        "question": "Did you see Elias drinking wine after the main gathering in the sitting room had broken up?",
+        "response": "Oh, dear investigator, I did indeed see my brother, Elias, partaking of wine in the library well after the main gathering had come to a close. His laughter echoed in that room, and it pains me to think that was the last moment of mirth before such tragedy struck. I assure you, his spirit was still vibrant then, despite the darkness that followed."
+      },
+      {
+        "question": "Can you confirm where Nathan Cross was when Elias collapsed?",
+        "response": "Ah, dear investigator, I was with Nathan in the dining room when Elias collapsed. I can assure you that he was not in the gallery at that time; we were both there, sharing a moment of disbelief and concern. I wish I could provide more clarity, but my heart aches with the weight of this loss."
+      },
+      {
+        "question": "Did Nathan tell you when he left the main gathering in the sitting room?",
+        "response": "Oh, dear investigator, I cannot say for certain when Nathan departed from the sitting room. Our conversation in the dining room was so filled with shock and grief that the moments before Elias's collapse are a blur in my memory. Yet, I vividly recall Elias's laughter in the library not long prior, so full of life, it feels cruel that it was snuffed out so swiftly."
+      },
+      {
+        "question": "What was the last conversation you had with your brother Elias before he collapsed? What did he say?",
+        "response": "Oh, dear investigator, the last words Elias spoke to me were filled with such warmth and brotherly affection. He had just recounted a delightful tale from our childhood, and I could see the joy in his eyes; he seemed so alive in that moment. It pains me deeply to think of how swiftly everything changed after that, leaving only shadows of what once was."
+      }
+    ],
+    "Arthur Bell": [
+      {
+        "question": "Did you observe Nathan Cross and Elias Morven together in the sitting room during the evening?",
+        "response": "Indeed, I did observe Mr. Cross and Mr. Morven together in the sitting room earlier in the evening. They were conversing alone for a brief time, though I cannot speak to the contents of their discussion. After that, I noted Mr. Cross remained present in the sitting room as I went about my duties."
+      },
+      {
+        "question": "How long did Nathan Cross appear to remain in the sitting room during the gathering?",
+        "response": "Mr. Cross remained in the sitting room for some time after I last observed him with Mr. Morven. While I cannot specify the exact duration, I recall that I continued my duties in that area and noted he was still present when I attended to other matters."
+      },
+      {
+        "question": "When did you discover Elias Morven had collapsed, and where?",
+        "response": "I discovered Mr. Morven collapsed in the gallery during the later part of the evening. I had just attended to a few matters in the sitting room and made my way to the gallery when I found him. It was a most distressing sight, and I immediately called for help."
+      },
+      {
+        "question": "In your role managing the estate, did anything seem out of order during the evening before Mr. Morven collapsed?",
+        "response": "Arthur Bell: I cannot say I observed anything overtly amiss during the evening, though I must admit the atmosphere grew somewhat tense at times. The guests engaged in their conversations, yet there was an air of unease that I noted, particularly between Mr. Cross and Mr. Morven. However, I shall refrain from conjecture; I can only speak to what I directly witnessed."
+      }
+    ]
+  },
+  "hard_contradictions": [],
+  "design_contradictions": [
+    {
+      "type": "DESIGN: Expected lie exposed",
+      "npc": "Nathan Cross",
+      "claim": "Claims he did not pour Elias's wine",
+      "contradicted_by": "World fact 'lila_saw_pouring': Lila saw Nathan refill Elias's glass in the sitting room",
+      "severity": "DESIGN"
+    },
+    {
+      "type": "DESIGN: Timeline contradiction",
+      "npc": "Nathan Cross vs Arthur Bell",
+      "claim": "Nathan: Nathan claims: 'I left before Elias finished his wine'",
+      "contradicted_by": "Arthur: Arthur observed Nathan and Elias together longer than Nathan claims",
+      "severity": "DESIGN"
+    },
+    {
+      "type": "DESIGN: Timeline contradiction",
+      "npc": "Nathan Cross vs Helena Morven",
+      "claim": "Nathan: Nathan claims: 'I left before Elias finished his wine'",
+      "contradicted_by": "Helena: Helena saw Elias still drinking wine after Nathan claims to have left",
+      "severity": "DESIGN"
+    }
+  ],
+  "new_facts": [
+    {
+      "key": "accusation_status_f1f0cca9",
+      "value": "unfounded",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "action_taken_59ec4bb8",
+      "value": "called for help",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "atmosphere_description_2de2ec1f",
+      "value": "convivial, laughter and soft murmurs",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "atmosphere_of_event_b924f7ea",
+      "value": "unspoken tension",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "atmosphere_tension_24cee119",
+      "value": "tense",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "attendance_event_7ef1ea46",
+      "value": "still present",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "awareness_of_stakes_c45aa292",
+      "value": "evening's stakes",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "change_description_5d6c7ba4",
+      "value": "shadows of what once was",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "collapsed_person_location_b5d30c28",
+      "value": "Mr. Morven in the gallery",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "conversing_alone_e175b713",
+      "value": "Mr. Cross and Mr. Morven",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "denied_action_e2a4a1a3",
+      "value": "pour or refill Elias's wine glass",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "departure_time_1828b09a",
+      "value": "long before he should have finished his drink",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "emotion_change_82c6615d",
+      "value": "pains me deeply",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "emotion_description_ce76e233",
+      "value": "warmth and brotherly affection",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "emotion_observation_dd7a2a60",
+      "value": "joy in his eyes",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "event_characteristics_1cf46591",
+      "value": "laughter and spirited conversation",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "event_occurred_d3b94f8d",
+      "value": "Elias collapsed",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "event_shared_moment_ec053415",
+      "value": "sharing a moment of disbelief and concern",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "event_time_83b17541",
+      "value": "early evening",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "gathering_commencement_a62ee835",
+      "value": "gathering commenced",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "guest_activity_956a0eac",
+      "value": "engaged in conversations",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "incident_characteristics_4860c484",
+      "value": "tragic incident during delightful soir\u00e9e",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "mentioned_event_31cb24e6",
+      "value": "collapse",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "mentioned_event_7ddf887c",
+      "value": "Elias collapsed",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "mentioned_event_fcdc56a1",
+      "value": "unfortunate incident",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "mentioned_feeling_2000ebe5",
+      "value": "distressing thought about tragic event",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "mentioned_time_b03e5a58",
+      "value": "some time before the incident",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "mentioned_time_ebb20dbb",
+      "value": "well after the main gathering had come to a close",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "mood_of_gathering_9096cd68",
+      "value": "jovial",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "nathan_presence_event_41a3f591",
+      "value": "Elias collapsed",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "observed_event_7e0a7a53",
+      "value": "nothing overtly amiss",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "observed_persons_together_219aaac7",
+      "value": "Mr. Cross and Mr. Morven",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "recounted_tale_f00a3f48",
+      "value": "delightful tale from our childhood",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "reported_event_c22503c6",
+      "value": "laughter echoed",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "key": "step_outside_event_8c35d619",
+      "value": "fresh air",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "time_after_arrival_86bdcdfc",
+      "value": "twenty minutes",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "key": "time_of_event_35c12f08",
+      "value": "evening",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "key": "time_of_event_affcaafa",
+      "value": "later part of the evening",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "unable_to_speak_contents_ba38e1ec",
+      "value": "contents of their discussion",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "unease_observed_6fbfd57e",
+      "value": "air of unease",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "witness_duties_4b38cc74",
+      "value": "went about my duties",
+      "source": "Statement by Arthur Bell"
+    },
+    {
+      "key": "witnessed_event_12764e9a",
+      "value": "Nathan refill Elias's glass",
+      "source": "Statement by Lila Chen"
+    }
+  ]
+}
