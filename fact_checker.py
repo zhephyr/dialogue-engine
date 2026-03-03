@@ -135,82 +135,41 @@ class FactChecker:
             is_intentional_lie: Whether the character intends to lie
             is_intentional_omission: Whether the character intends to omit info
         """
-        # If it's marked as intentional, track it but don't fail
-        if is_intentional_lie:
-            result = ValidationResult(
-                is_valid=True,  # We allow intentional lies
-                claim=claim,
-                reason="Intentional lie by character",
-                is_lie=True
-            )
-            return result
-        
-        if is_intentional_omission:
-            result = ValidationResult(
-                is_valid=True,  # We allow intentional omissions
-                claim=claim,
-                reason="Intentional omission by character",
-                is_omission=True
-            )
-            return result
-        
         # Check if the claim matches world state
         category = claim['category']
         key = claim['key']
         claimed_value = claim['value']
         
+        is_valid = False
+        world_truth = None
+        reason = ""
+        
         # For location claims, verify the location exists
         if category == "location":
             if claimed_value.lower() in [loc.lower() for loc in self.world_state.locations]:
-                result = ValidationResult(
-                    is_valid=True,
-                    claim=claim,
-                    reason="Location exists in world",
-                    world_truth=claimed_value
-                )
+                is_valid = True
+                reason = "Location exists in world"
+                world_truth = claimed_value
             else:
-                result = ValidationResult(
-                    is_valid=False,
-                    claim=claim,
-                    reason=f"Location '{claimed_value}' does not exist in world state",
-                    world_truth=None
-                )
+                reason = f"Location '{claimed_value}' does not exist in world state"
         
         # For person mentions, verify the person exists
         elif category == "person":
             if claimed_value in self.world_state.characters:
-                result = ValidationResult(
-                    is_valid=True,
-                    claim=claim,
-                    reason="Character exists in world",
-                    world_truth=claimed_value
-                )
+                is_valid = True
+                reason = "Character exists in world"
+                world_truth = claimed_value
             else:
-                result = ValidationResult(
-                    is_valid=False,
-                    claim=claim,
-                    reason=f"Character '{claimed_value}' does not exist in world state",
-                    world_truth=None
-                )
+                reason = f"Character '{claimed_value}' does not exist in world state"
         
         # For specific fact keys, check against world state
         elif key in self.world_state.facts:
-            world_value = self.world_state.get_fact(key)
-            if str(world_value).lower() == str(claimed_value).lower():
-                result = ValidationResult(
-                    is_valid=True,
-                    claim=claim,
-                    reason="Matches world state fact",
-                    world_truth=world_value
-                )
+            world_truth = self.world_state.get_fact(key)
+            if str(world_truth).lower() == str(claimed_value).lower():
+                is_valid = True
+                reason = "Matches world state fact"
             else:
-                result = ValidationResult(
-                    is_valid=False,
-                    claim=claim,
-                    reason=f"Contradicts world state. Truth: {world_value}",
-                    world_truth=world_value,
-                    is_lie=True  # Unintentional lie / error
-                )
+                reason = f"Contradicts world state. Truth: {world_truth}"
         
         # Unknown claims are allowed (new information). We add these to the timeline.
         else:
@@ -227,13 +186,26 @@ class FactChecker:
                 witnesses=[character.name],
                 source=f"Statement by {character.name}"
             )
+            is_valid = True
+            reason = "New information added to world state"
+            world_truth = claimed_value
+            
+        # Check intentional omissions
+        if is_intentional_omission:
+            reason = "Intentional omission by character"
+            
+        # Check intentional lies
+        if is_intentional_lie:
+            reason = "Intentional lie by character"
 
-            result = ValidationResult(
-                is_valid=True,
-                claim=claim,
-                reason="New information added to world state",
-                world_truth=claimed_value
-            )
+        result = ValidationResult(
+            is_valid=is_valid,
+            claim=claim,
+            reason=reason,
+            world_truth=world_truth,
+            is_lie=is_intentional_lie,
+            is_omission=is_intentional_omission
+        )
         
         self.validation_history.append(result)
         return result
