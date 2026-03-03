@@ -307,7 +307,8 @@ JSON:"""
 class IntentionAnalyzer:
     """
     Helper class to analyze if a statement contains intentional lies or omissions.
-    In practice, this would work with the AI to identify deceptions.
+    In practice, this works with the AIProvider to identify deceptions by comparing
+    the character's statement against their known facts and secrets.
     """
     
     @staticmethod
@@ -320,28 +321,101 @@ class IntentionAnalyzer:
         """
         Analyze a statement to identify potential lies and omissions.
         
+        When a real AI provider is supplied (not MockProvider / CustomMockProvider),
+        this method:
+          1. Builds a context-rich prompt with the character's secrets, known facts,
+             and public world facts.
+          2. Asks the AI to return JSON of the form:
+             { "lies": ["<deceptive phrase>", ...], "omissions": ["<omitted topic>", ...] }
+          3. Parses the JSON response and extracts the lists.
+          4. Merges AI-detected deceptions with heuristic results (deduplicates).
+        
+        Falls back to heuristics alone on any AI call or parse failure.
+        
         Returns:
             Tuple of (likely_lies, likely_omissions)
         """
-        # Full Implementation Placeholder:
-        # 1. Provide Context to AI provider
-        # 2. Extract specific deceptive text blocks
-        if ai_provider and ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
-            # Setup AI prompt logic here
-            pass
+        likely_lies: List[str] = []
+        likely_omissions: List[str] = []
 
-        likely_lies = []
-        likely_omissions = []
-        
-        # Simple heuristic: check if character has secrets they might be hiding
+        # --- AI-powered deception detection ---
+        if ai_provider and ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
+            try:
+                # Gather world context: public facts the character might contradict
+                public_facts = world_state.query_facts(is_public=True)
+                facts_text = "\n".join(
+                    f"  - {f.key}: {f.value}" for f in public_facts
+                ) or "  (none)"
+
+                # Character's own knowledge base
+                known_facts_text = "\n".join(
+                    f"  - {k}: {v}" for k, v in character.known_facts.items()
+                ) or "  (none)"
+
+                # Character's secrets (things they may be motivated to hide)
+                secrets_text = "\n".join(
+                    f"  - {s}" for s in character.secrets
+                ) or "  (none)"
+
+                prompt = f"""You are a deception analyst reviewing a statement made by {character.name}.
+
+WORLD FACTS (ground truth):
+{facts_text}
+
+{character.name}'s KNOWN FACTS:
+{known_facts_text}
+
+{character.name}'s SECRETS (motivations to hide or lie):
+{secrets_text}
+
+STATEMENT TO ANALYZE:
+"{statement}"
+
+Identify any parts of the statement that are likely LIES (contradicts known facts or secrets)
+or OMISSIONS (topics the character avoided or conveniently left out).
+
+Return ONLY a valid JSON object. No markdown, no prose. Format:
+{{
+  "lies": ["<deceptive phrase from the statement>", ...],
+  "omissions": ["<topic omitted or avoided>", ...]
+}}
+If none, return empty lists. JSON:"""
+
+                ai_result = ai_provider.generate_response(prompt, max_tokens=400)
+
+                # Strip potential markdown code fences
+                content = ai_result.replace("```json", "").replace("```", "").strip()
+                data = json.loads(content)
+
+                if isinstance(data, dict):
+                    ai_lies = data.get("lies", [])
+                    ai_omissions = data.get("omissions", [])
+
+                    # Validate each entry is a non-empty string
+                    if isinstance(ai_lies, list):
+                        likely_lies.extend(
+                            item for item in ai_lies
+                            if isinstance(item, str) and item.strip()
+                        )
+                    if isinstance(ai_omissions, list):
+                        likely_omissions.extend(
+                            item for item in ai_omissions
+                            if isinstance(item, str) and item.strip()
+                        )
+
+            except Exception:
+                # Fall back to heuristics silently on any failure
+                pass
+
+        # --- Heuristic fallback: check character secrets against statement keywords ---
         for secret in character.secrets:
-            # If the secret is related to the statement topic, flag potential omission
             secret_words = set(secret.lower().split())
             statement_words = set(statement.lower().split())
-            
+
             if len(secret_words & statement_words) > 0:
-                # Character is talking about something related to their secret
-                # Might be an omission
-                likely_omissions.append(f"Potential omission related to: {secret}")
-        
+                # Character is discussing something related to their secret — flag potential omission
+                heuristic_omission = f"Potential omission related to: {secret}"
+                if heuristic_omission not in likely_omissions:
+                    likely_omissions.append(heuristic_omission)
+
         return likely_lies, likely_omissions

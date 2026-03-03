@@ -2,13 +2,14 @@
 Tests for the FactChecker module.
 
 This module validates:
-- Claim extraction from NPC statements (with and without AI)
-- Claim validation against world truth (true, false-unintentional, false-intentional)
-- IntentionAnalyzer's deception detection via mocking
+ - Claim extraction from NPC statements (with and without AI)
+ - Claim validation against world truth (true, false-unintentional, false-intentional)
+ - IntentionAnalyzer's deception detection (heuristic fallback AND AI-provider path)
 
 The `populated_world` fixture is defined in conftest.py.
 """
 
+import json
 import pytest
 from unittest.mock import MagicMock
 from fact_checker import FactChecker, Claim, ValidationResult, IntentionAnalyzer
@@ -96,7 +97,7 @@ def test_validate_false_claim_intentional_lie(fact_checker, populated_world, npc
 def test_analyze_for_deception(populated_world, npc_alice):
     """
     analyze_for_deception should detect when a character is lying about known facts.
-    Here we mock the method to simulate an AI-detected lie about a secret meeting.
+    Here we mock the whole method to simulate an AI-detected lie about a secret meeting.
     """
     populated_world.add_fact("secret_meeting", True, is_public=False)
     npc_alice.add_known_fact("secret_meeting", True)
@@ -111,3 +112,49 @@ def test_analyze_for_deception(populated_world, npc_alice):
     # The known secret should be identified as a likely lie
     assert "secret_meeting" in lies
     assert len(omissions) == 0
+
+
+def test_analyze_for_deception_with_real_ai_provider(populated_world, npc_alice):
+    """
+    When a non-mock AI provider is supplied, analyze_for_deception should:
+    - Build a prompt and call ai_provider.generate_response
+    - Parse the JSON response `{"lies": [...], "omissions": [...]}` 
+    - Return the detected lies and omissions lists
+
+    The ai_provider.generate_response is mocked here so the actual JSON-parsing
+    code path inside analyze_for_deception is exercised end-to-end.
+    """
+    # Give Alice a secret she could be hiding
+    populated_world.add_fact("victim_location", "Library", is_public=False,
+                             witnesses=["Alice"])
+    npc_alice.add_known_fact("victim_location", "Library")
+    npc_alice.secrets = ["I saw the victim in the Library but told no one"]
+
+    # Build a mock AI provider whose class name is *not* MockProvider/CustomMockProvider
+    # so the AI branch inside analyze_for_deception is entered.
+    class RealishProvider:
+        pass  # class name is 'RealishProvider' — not in the exclusion list
+
+    mock_provider = RealishProvider()
+    ai_response = json.dumps({
+        "lies": ["I was not near the Library"],
+        "omissions": ["did not mention seeing the victim"]
+    })
+    mock_provider.generate_response = MagicMock(return_value=ai_response)
+
+    statement = "I was not near the Library. I heard nothing unusual."
+    lies, omissions = IntentionAnalyzer.analyze_for_deception(
+        statement, npc_alice, populated_world, ai_provider=mock_provider
+    )
+
+    # The AI provider's generate_response should have been called
+    assert mock_provider.generate_response.called, \
+        "generate_response must be called when a real AI provider is supplied"
+
+    # The lie identified by the AI must be returned
+    assert "I was not near the Library" in lies, \
+        f"Expected lie to be detected; got lies={lies}"
+
+    # The omission identified by the AI must be returned
+    assert any("victim" in omission for omission in omissions), \
+        f"Expected omission to be detected; got omissions={omissions}"
