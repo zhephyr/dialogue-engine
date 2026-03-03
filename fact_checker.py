@@ -82,12 +82,20 @@ JSON:"""
                 data = json.loads(content)
                 if isinstance(data, list):
                     for item in data:
-                        claims.append(Claim(
-                            claim_text=item.get("claim_text", statement),
-                            category=item.get("category", "other"),
-                            key=item.get("key", "unknown"),
-                            value=item.get("value", "")
-                        ))
+                        raw_value = item.get("value", "")
+                        # AI sometimes returns an array of values (e.g. multiple persons).
+                        # Expand these into individual claims rather than stringify the list.
+                        if isinstance(raw_value, list):
+                            values = raw_value
+                        else:
+                            values = [raw_value]
+                        for val in values:
+                            claims.append(Claim(
+                                claim_text=item.get("claim_text", statement),
+                                category=item.get("category", "other"),
+                                key=item.get("key", "unknown"),
+                                value=str(val)
+                            ))
                     return claims
             except Exception as e:
                 # Fall back to heuristic pattern matching if AI fails or returns invalid format
@@ -236,8 +244,21 @@ JSON:"""
                 is_valid = True
                 reason = "Character exists in world"
                 world_truth = matched_char
+            elif not signal_words:
+                # No signal words remain after noise filtering — the phrase is pure
+                # noise/kinship (e.g. 'my dear brother').  Treat as benign new info.
+                is_valid = True
+                reason = "Non-character phrase discarded as new information"
+                world_truth = None
             else:
-                reason = f"Character '{claimed_value}' does not exist in world state"
+                # Signal words exist but none match a known character.
+                # This is likely an imprecise AI extraction artifact (e.g. 'indulging in
+                # drink' tagged as a person claim).  Treat as new information rather than
+                # a hard world-state contradiction, since the NPC is not asserting that
+                # a character named 'indulging in drink' exists.
+                is_valid = True
+                reason = "Unrecognised person phrase discarded as new information"
+                world_truth = None
         
         # For specific fact keys, check against world state ONLY when the stored fact
         # was authored by the world engine itself (source="world").

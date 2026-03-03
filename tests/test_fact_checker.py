@@ -313,46 +313,33 @@ def test_location_claim_underscore_normalises_to_space(populated_world):
 
 def test_person_claim_possessive_phrase_not_matched(populated_world):
     """
-    REGRESSION: The person validation fuzzy match splits the claimed_value by
-    whitespace and checks if any word appears in a character's full name.
-    A phrase like 'my brother' splits into ['my', 'brother'], and if 'brother'
-    happened to be a substring of a character name OR matched via the 'in' operator,
-    it would create a spurious person match.
+    REGRESSION: Possessive/relational phrases like 'my brother', 'dear brother',
+    or action-word phrases like 'indulging in drink' tagged as person claims by the
+    AI extractor must NOT produce hard world-state contradictions.
 
-    Verify that purely relational/possessive phrases ('my brother', 'her sister',
-    'the victim') do NOT match any character in world state.
+    These phrases have no matching character in world state, so they are silently
+    discarded (is_valid=True, world_truth=None) rather than flagged as contradictions.
+    The key invariant is: no character name is spuriously matched.
     """
-    # No character named 'brother', 'my', or similar
     fc = FactChecker(populated_world)
     npc = NPCAgent("Alice", "Friendly librarian")
 
-    claim = Claim(
-        "My thoughts were consumed with the company of my brother.",
-        "person",
-        "mentioned_person",
-        "my brother"
-    )
-    result = fc.validate_claim(claim, npc)
+    for phrase, claim_text in [
+        ("my brother", "My thoughts were consumed with the company of my brother."),
+        ("dear brother", "It pains me deeply to think of what happened to my dear brother."),
+        ("indulging in drink", "I noticed him with a glass still in hand, indulging in drink."),
+    ]:
+        claim = Claim(claim_text, "person", "mentioned_person", phrase)
+        result = fc.validate_claim(claim, npc)
 
-    # 'my brother' is not a known character — must be rejected (not valid)
-    assert result.is_valid is False, (
-        "The phrase 'my brother' must not fuzzy-match any known character. "
-        f"Got reason: {result.reason}"
-    )
-
-    # Also cover the honorific-adjective variant: 'my dear brother'
-    claim2 = Claim(
-        "It pains me deeply to think of what happened to my dear brother.",
-        "person",
-        "mentioned_person",
-        "dear brother"
-    )
-    result2 = fc.validate_claim(claim2, npc)
-
-    assert result2.is_valid is False, (
-        "The phrase 'dear brother' must not fuzzy-match any known character. "
-        f"Got reason: {result2.reason}"
-    )
-
-
-
+        # Must NOT flag as a hard contradiction — is_valid must be True (silently discarded)
+        assert result.is_valid is True, (
+            f"Phrase '{phrase}' must NOT trigger a hard contradiction. "
+            f"It should be silently discarded as new/unrecognised info. "
+            f"Got reason: {result.reason}"
+        )
+        # Must not match any real character
+        assert result.world_truth is None or result.world_truth not in populated_world.characters, (
+            f"Phrase '{phrase}' must not resolve to a known character name. "
+            f"Got world_truth: {result.world_truth}"
+        )
