@@ -123,9 +123,78 @@ class DialogueEngine:
         
         # Get AI response via stream
         npc_response_chunks = []
-        async for chunk in self.ai_provider.generate_response_stream(prompt):
-            npc_response_chunks.append(chunk)
-            yield {"type": "dialogue_chunk", "chunk": chunk}
+        MAX_TURNS = 3
+        turn_count = 0
+        
+        while turn_count < MAX_TURNS:
+            turn_count += 1
+            buffer = ""
+            in_tool_tag = False
+            tool_json_str = ""
+            tool_executed = False
+            
+            async for chunk in self.ai_provider.generate_response_stream(prompt):
+                buffer += chunk
+                while buffer:
+                    if not in_tool_tag:
+                        tool_start = buffer.find("<tool>")
+                        if tool_start != -1:
+                            if tool_start > 0:
+                                safe_chunk = buffer[:tool_start]
+                                npc_response_chunks.append(safe_chunk)
+                                yield {"type": "dialogue_chunk", "chunk": safe_chunk}
+                                prompt += safe_chunk
+                            buffer = buffer[tool_start + 6:]
+                            in_tool_tag = True
+                        else:
+                            potential_start = buffer.rfind("<")
+                            if potential_start != -1 and "<tool>".startswith(buffer[potential_start:]):
+                                if potential_start > 0:
+                                    safe_chunk = buffer[:potential_start]
+                                    npc_response_chunks.append(safe_chunk)
+                                    yield {"type": "dialogue_chunk", "chunk": safe_chunk}
+                                    prompt += safe_chunk
+                                buffer = buffer[potential_start:]
+                                break
+                            else:
+                                npc_response_chunks.append(buffer)
+                                yield {"type": "dialogue_chunk", "chunk": buffer}
+                                prompt += buffer
+                                buffer = ""
+                    else:
+                        tool_end = buffer.find("</tool>")
+                        if tool_end != -1:
+                            tool_json_str += buffer[:tool_end]
+                            try:
+                                import json
+                                from npc_tools import execute_tool
+                                tool_data = json.loads(tool_json_str)
+                                tool_name = tool_data.get("capability")
+                                kwargs = tool_data.get("kwargs", {})
+                                result = execute_tool(tool_name, npc, self.world_state, kwargs)
+                                yield {"type": "tool_execution", "tool_name": tool_name, "kwargs": kwargs, "result": result}
+                                prompt += f"\\n\\n[System: Tool '{tool_name}' returned: {result}]\\nContinue your response naturally:\\n"
+                            except Exception as e:
+                                prompt += f"\\n\\n[System: Tool Error: {e}]\\nContinue your response naturally:\\n"
+                            
+                            buffer = buffer[tool_end + 7:]
+                            in_tool_tag = False
+                            tool_json_str = ""
+                            tool_executed = True
+                            break
+                        else:
+                            tool_json_str += buffer
+                            buffer = ""
+                            
+                if tool_executed:
+                    break
+            
+            # If we didn't execute a tool, we finished generating
+            if not tool_executed:
+                if buffer and not in_tool_tag:
+                    npc_response_chunks.append(buffer)
+                    yield {"type": "dialogue_chunk", "chunk": buffer}
+                break
             
         npc_response = "".join(npc_response_chunks)
         

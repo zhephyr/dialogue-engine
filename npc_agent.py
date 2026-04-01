@@ -163,6 +163,8 @@ class NPCAgent:
         """
         context = self.get_character_context()
         recent_conv = self.get_recent_conversation()
+        from npc_tools import get_all_tool_schemas
+        tool_schemas = get_all_tool_schemas()
         
         # Build schedule section if available
         schedule_text = ""
@@ -223,6 +225,14 @@ INSTRUCTIONS:
 5. If asked about a time not in your schedule, say you don't recall or be vague
 6. Be natural and conversational, using period-appropriate language
 7. Keep responses relatively brief (1-3 sentences typically)
+
+CAPABILITIES (TOOLS):
+You can perform actions to help you respond. To perform an action, output a JSON object enclosed in <tool> tags.
+For example: <tool>{{"capability": "CheckFact", "kwargs": {{"topic": "murder weapon"}}}}</tool>
+After the closing tag, you MUST seamlessly continue your dialogue.
+
+Available Capabilities:
+{tool_schemas}
 
 YOUR RESPONSE (as {self.name}):"""
 
