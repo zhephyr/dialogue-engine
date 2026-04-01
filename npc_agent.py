@@ -139,6 +139,9 @@ class NPCAgent:
                 {"type": m.type, "content": m.content}
                 for m in self.memory[-20:]  # Last 20 memories
             ],
+            "dialogue_summaries": [
+                m.content for m in self.memory if m.type == "dialogue_summary"
+            ][-5:], # Keep last 5 summaries
             "lies_told": [
                 {"content": lie.content, "context": lie.context}
                 for lie in self.lies_told
@@ -207,6 +210,9 @@ LIES YOU'VE TOLD RECENTLY:
 
 THINGS YOU'VE DELIBERATELY OMITTED:
 {chr(10).join(f"- {omit.content}" for omit in self.omissions_made[-5:])}
+
+PREVIOUS CONVERSATION CONTEXT (Summarized):
+{chr(10).join(f"- {summary}" for summary in context.get("dialogue_summaries", []))}
 
 RECENT CONVERSATION:
 {chr(10).join(f"{turn['speaker']}: {turn['message']}" for turn in recent_conv[-5:])}

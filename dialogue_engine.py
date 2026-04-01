@@ -106,8 +106,8 @@ class DialogueEngine:
         # Sync NPC knowledge with world state
         self.sync_npc_knowledge(npc)
         
-        # Get full character knowledge including schedule
-        character_knowledge = self.world_state.export_character_knowledge(npc.name)
+        # Get character knowledge, filtered to just the current scene to save tokens
+        character_knowledge = self.world_state.export_character_knowledge(npc.name, self.current_scene)
         
         # Record player's message
         npc.add_conversation_turn(player_name, player_message)
@@ -267,6 +267,37 @@ class DialogueEngine:
                     print(f"  {status} {result.claim['claim_text']}{flag}")
         
         yield {"type": "metadata", "data": metadata}
+
+        # After conversation turn, conditionally compact memory to save context limits
+        await self.compact_conversation_if_needed(npc)
+        
+    async def compact_conversation_if_needed(self, npc: NPCAgent, max_turns=30, condense_amount=16) -> None:
+        """
+        Background task to condense conversation history if it exceeds max_turns.
+        """
+        # Note: conversation_history stores individual entries (both player and NPC turns)
+        if len(npc.conversation_history) > max_turns:
+            turns_to_condense = npc.conversation_history[:condense_amount]
+            npc.conversation_history = npc.conversation_history[condense_amount:]
+            
+            transcript = "\\n".join([f"{t['speaker']}: {t['message']}" for t in turns_to_condense])
+            prompt = f"Summarize the following conversation segment concisely in 1-3 bullet points. Focus purely on facts discussed, claims made, and important conclusions.\\n\\n{transcript}\\n\\nSummary:"
+            
+            # Since mock provider doesn't really summarize, we just get some output stream
+            chunks = []
+            async for chunk in self.ai_provider.generate_response_stream(prompt):
+                chunks.append(chunk)
+                
+            summary_text = "".join(chunks).strip()
+            
+            npc.add_memory(
+                "dialogue_summary",
+                summary_text,
+                {"condensed_turns": len(turns_to_condense)}
+            )
+            
+            if self.verbose:
+                print(f"[Engine] Compacted {len(turns_to_condense)} turns of conversation for {npc.name}.")
     
     def get_conversation_history(self, npc_name: str, num_turns: int = 10) -> List[Dict[str, str]]:
         """Get conversation history with an NPC"""

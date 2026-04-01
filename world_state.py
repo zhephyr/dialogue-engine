@@ -374,10 +374,10 @@ class WorldState:
             "current_time": f"Day {self.current_day} - {self.current_period}"
         }
     
-    def export_character_knowledge(self, character: str) -> Dict[str, Any]:
+    def export_character_knowledge(self, character: str, current_scene: Optional[str] = None) -> Dict[str, Any]:
         """
-        Export all facts, events, and relationships that a specific character knows.
-        This is used to provide context to the AI agent.
+        Export facts, events, and relationships that a specific character knows.
+        If current_scene is provided, filter down to facts/events relevant to the location or people in the scene.
         """
         known_facts = [
             f for f in self.facts.values()
@@ -387,6 +387,23 @@ class WorldState:
         known_events = self.get_events_with_character(character)
         
         relationships = self.get_relationships(character)
+        
+        # Filter if requested
+        if current_scene:
+            scene_lower = current_scene.lower()
+            
+            # Simple keyword matching to see who/what is in the scene
+            relevant_chars = [c.lower() for c in self.characters if c.lower() in scene_lower]
+            relevant_locs = [loc.lower() for loc in self.locations if loc.lower() in scene_lower]
+            
+            def is_relevant(text: str) -> bool:
+                t = text.lower()
+                return any(c in t for c in relevant_chars) or any(l in t for l in relevant_locs)
+                
+            if relevant_chars or relevant_locs:
+                known_facts = [f for f in known_facts if is_relevant(str(f.value)) or is_relevant(f.key)]
+                known_events = [e for e in known_events if is_relevant(e.description) or is_relevant(e.location) or any(c.lower() in scene_lower for c in e.participants)]
+                relationships = [r for r in relationships if r.character_a.lower() in scene_lower or r.character_b.lower() in scene_lower]
         
         # Get character's schedule
         schedule = self.get_character_schedule(character)
