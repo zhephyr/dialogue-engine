@@ -15,13 +15,14 @@ Killer: Nathan Cross (poisoned victim during casual conversation)
 Setting: Small manor, single evening gathering
 """
 
+from typing import Dict, List, Optional, Any, Tuple
 from world_state import WorldState
 from npc_agent import NPCAgent, CharacterTrait
 from dialogue_engine import DialogueEngine
 from datetime import datetime
 
 
-def create_example_scenario(verbose: bool = False) -> DialogueEngine:
+def create_example_scenario(verbose: bool = False, log_file: Optional[str] = None) -> DialogueEngine:
     """
     Create The Gallery Silence scenario.
     
@@ -71,6 +72,10 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     world.add_fact("no_weapon_found", "No weapon at scene", category="death", is_public=True)
     world.add_fact("no_physical_evidence", "No physical evidence at death scene", 
                    category="death", is_public=True)
+
+    # TRAP FACT: A small clue that only one person knows, which can be used to test if others "hallucinate" knowing it.
+    world.add_fact("missing_poison_vial", "A small empty glass vial was seen by Arthur in the Library garden earlier.",
+                   category="clue", is_public=False, witnesses=["Arthur Bell"])
 
     # ========== EXPLICIT TIMELINE/SCHEDULE ==========
     # Single evening - dialogue-relevant timeline
@@ -545,7 +550,7 @@ def create_example_scenario(verbose: bool = False) -> DialogueEngine:
     }
     
     # ========== INITIALIZE ENGINE ==========
-    engine = DialogueEngine(world, verbose=verbose)
+    engine = DialogueEngine(world, verbose=verbose, log_file=log_file)
     
     # Add all NPCs
     engine.add_npc(nathan)

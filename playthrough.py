@@ -16,6 +16,8 @@ Usage:
 import json
 import sys
 import os
+import asyncio
+from typing import Dict, List, Any
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -117,7 +119,7 @@ def batch_cross_check(all_responses: dict, engine) -> list:
     return contradictions
 
 
-def run_playthrough():
+async def run_playthrough():
     """Run the full detective playthrough and report contradictions."""
     print("=" * 70)
     print("PHASE 2 PLAYTHROUGH: The Gallery Silence")
@@ -141,11 +143,32 @@ def run_playthrough():
 
         for question in questions:
             print(f"\nDETECTIVE: {question}")
-            response, metadata = engine.converse(
+            
+            full_response = ""
+            metadata = {}
+            
+            async for event in engine.converse(
                 npc_name, question, player_name="Investigator"
-            )
-            print(f"{npc_name}: {response}")
-            npc_responses.append({"question": question, "response": response})
+            ):
+                event_type = event.get("type")
+                
+                if event_type == "status":
+                    print(f"[{npc_name} is {event.get('status')}...]", end="\r")
+                elif event_type == "dialogue_chunk":
+                    chunk = event.get("chunk", "")
+                    print(chunk, end="", flush=True)
+                    full_response += chunk
+                elif event_type == "tool_execution":
+                    print(f"\n[TOOL: {event.get('tool_name')}({event.get('kwargs')}) -> {event.get('result')}]")
+                elif event_type == "metadata":
+                    metadata = event.get("data", {})
+            
+            print() # New line after streaming response
+            npc_responses.append({
+                "question": question, 
+                "response": full_response,
+                "metadata": metadata
+            })
 
         all_responses[npc_name] = npc_responses
 
@@ -242,5 +265,5 @@ def run_playthrough():
 
 
 if __name__ == "__main__":
-    contradictions = run_playthrough()
-    sys.exit(0 if not contradictions else 1)
+    hard_contradictions = asyncio.run(run_playthrough())
+    sys.exit(0 if not hard_contradictions else 1)
