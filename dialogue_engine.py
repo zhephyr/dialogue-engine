@@ -5,7 +5,8 @@ Main engine that orchestrates conversations between the player and NPCs.
 Handles AI generation, fact-checking, and memory management.
 """
 
-from typing import Dict, List, Optional, Any, Tuple
+import asyncio
+from typing import Dict, List, Optional, Any, Tuple, AsyncGenerator
 from world_state import WorldState
 from npc_agent import NPCAgent
 from fact_checker import FactChecker, IntentionAnalyzer
@@ -79,12 +80,12 @@ class DialogueEngine:
         for event in knowledge['known_events']:
             npc.add_witnessed_event(event['id'])
     
-    def converse(
+    async def converse(
         self,
         npc_name: str,
         player_message: str,
         player_name: str = "Player"
-    ) -> Tuple[str, Dict[str, Any]]:
+    ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Have a conversation turn with an NPC.
         
@@ -93,13 +94,14 @@ class DialogueEngine:
             player_message: What the player said
             player_name: Name to use for the player
         
-        Returns:
-            Tuple of (npc_response, metadata)
-            metadata contains validation results, lies detected, etc.
+        Yields:
+            Dicts representing status updates, dialogue chunks, and metadata.
         """
         npc = self.get_npc(npc_name)
         if not npc:
-            return f"[Error: NPC '{npc_name}' not found]", {"error": "NPC not found"}
+            yield {"type": "dialogue_chunk", "chunk": f"[Error: NPC '{npc_name}' not found]"}
+            yield {"type": "metadata", "data": {"error": "NPC not found"}}
+            return
         
         # Sync NPC knowledge with world state
         self.sync_npc_knowledge(npc)
@@ -117,11 +119,18 @@ class DialogueEngine:
             print(f"\n[Engine] Generating response for {npc.name}")
             print(f"[Engine] Player said: {player_message}")
         
-        # Get AI response
-        npc_response = self.ai_provider.generate_response(prompt)
+        yield {"type": "status", "status": "thinking"}
+        
+        # Get AI response via stream
+        npc_response_chunks = []
+        async for chunk in self.ai_provider.generate_response_stream(prompt):
+            npc_response_chunks.append(chunk)
+            yield {"type": "dialogue_chunk", "chunk": chunk}
+            
+        npc_response = "".join(npc_response_chunks)
         
         if self.verbose:
-            print(f"[Engine] {npc.name} responded: {npc_response}")
+            print(f"\n[Engine] {npc.name} responded: {npc_response}")
         
         # Record NPC's response
         npc.add_conversation_turn(npc.name, npc_response)
@@ -133,18 +142,22 @@ class DialogueEngine:
         }
         
         if self.fact_checker:
-            # Check for potential deceptions
-            likely_lies, likely_omissions = IntentionAnalyzer.analyze_for_deception(
-                npc_response, npc, self.world_state, self.ai_provider
-            )
-            
-            # Validate the statement
-            is_valid, validation_results = self.fact_checker.validate_statement(
-                npc_response,
-                npc,
-                marked_lies=likely_lies,
-                marked_omissions=likely_omissions
-            )
+            # For phase 1, we run fact checking concurrently but yield the result at the end.
+            # IntentionAnalyzer is synchronous, let's run it in a thread
+            def run_fact_checking():
+                likely_lies, likely_omissions = IntentionAnalyzer.analyze_for_deception(
+                    npc_response, npc, self.world_state, self.ai_provider
+                )
+                
+                is_valid, validation_results = self.fact_checker.validate_statement(
+                    npc_response,
+                    npc,
+                    marked_lies=likely_lies,
+                    marked_omissions=likely_omissions
+                )
+                return likely_lies, likely_omissions, is_valid, validation_results
+
+            likely_lies, likely_omissions, is_valid, validation_results = await asyncio.to_thread(run_fact_checking)
             
             # Track lies and omissions in NPC memory
             for result in validation_results:
@@ -184,7 +197,7 @@ class DialogueEngine:
                     flag = " [LIE]" if result.is_lie else (" [OMISSION]" if result.is_omission else "")
                     print(f"  {status} {result.claim['claim_text']}{flag}")
         
-        return npc_response, metadata
+        yield {"type": "metadata", "data": metadata}
     
     def get_conversation_history(self, npc_name: str, num_turns: int = 10) -> List[Dict[str, str]]:
         """Get conversation history with an NPC"""

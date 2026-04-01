@@ -44,17 +44,26 @@ def test_set_scene(engine):
 
 # --- Conversation Tests ---
 
-def test_converse_basic(engine):
+@pytest.mark.asyncio
+async def test_converse_basic(engine):
     """
     Basic conversation should:
-    - Return a mock response from the AI provider
+    - Yield a mock response from the AI provider in chunks
     - Record the response in the NPC's conversation history
-    - Return metadata indicating validation is disabled
+    - Yield metadata indicating validation is disabled
     """
     npc = NPCAgent("Alice", "Friendly")
     engine.add_npc(npc)
 
-    response, metadata = engine.converse("Alice", "Hello there")
+    chunks = []
+    metadata = {}
+    async for event in engine.converse("Alice", "Hello there"):
+        if event["type"] == "dialogue_chunk":
+            chunks.append(event["chunk"])
+        elif event["type"] == "metadata":
+            metadata.update(event["data"])
+
+    response = "".join(chunks)
 
     # MockProvider returns a canned response containing this string
     assert "Mock AI: Please configure an AI provider" in response
@@ -63,11 +72,12 @@ def test_converse_basic(engine):
     assert metadata["validation_enabled"] is False
 
 
-def test_converse_with_fact_checking():
+@pytest.mark.asyncio
+async def test_converse_with_fact_checking():
     """
     With fact-checking enabled, the engine should:
     - Validate the NPC's response against world state
-    - Return validation_results in the metadata
+    - Yield validation_results in the metadata
     - Correctly identify a true location claim as valid
     """
     ws = WorldState()
@@ -79,12 +89,20 @@ def test_converse_with_fact_checking():
 
     # Override the AI provider so the response contains a verifiable location claim
     class CustomMockProvider(MockProvider):
-        def generate_response(self, prompt: str) -> str:
-            return "I was at the library."
+        async def generate_response_stream(self, prompt: str):
+            yield "I was at the library."
 
     engine.ai_provider = CustomMockProvider()
 
-    response, metadata = engine.converse("Bob", "Where were you?")
+    chunks = []
+    metadata = {}
+    async for event in engine.converse("Bob", "Where were you?"):
+        if event["type"] == "dialogue_chunk":
+            chunks.append(event["chunk"])
+        elif event["type"] == "metadata":
+            metadata.update(event["data"])
+            
+    response = "".join(chunks)
 
     assert "library" in response.lower()
     assert metadata["validation_enabled"] is True
@@ -95,9 +113,18 @@ def test_converse_with_fact_checking():
     assert metadata["validation_results"][0]["claim"] == "I was at the library"
 
 
-def test_converse_npc_not_found(engine):
-    """Conversing with a non-existent NPC should return an error response and metadata."""
-    response, metadata = engine.converse("Ghost", "Hello?")
+@pytest.mark.asyncio
+async def test_converse_npc_not_found(engine):
+    """Conversing with a non-existent NPC should yield an error response and metadata."""
+    chunks = []
+    metadata = {}
+    async for event in engine.converse("Ghost", "Hello?"):
+        if event["type"] == "dialogue_chunk":
+            chunks.append(event["chunk"])
+        elif event["type"] == "metadata":
+            metadata.update(event["data"])
+            
+    response = "".join(chunks)
     assert "Error" in response
     assert "error" in metadata
 
@@ -115,12 +142,13 @@ def test_get_npc_status(engine):
     assert status["location"] == "Kitchen"
 
 
-def test_reset_conversation(engine):
+@pytest.mark.asyncio
+async def test_reset_conversation(engine):
     """Resetting a conversation should clear all recorded turns for the NPC."""
     npc = NPCAgent("Alice", "Friendly")
     engine.add_npc(npc)
     # Establish at least one turn
-    engine.converse("Alice", "Hello")
+    async for _ in engine.converse("Alice", "Hello"): pass
 
     assert len(engine.get_conversation_history("Alice")) > 0
     engine.reset_conversation("Alice")

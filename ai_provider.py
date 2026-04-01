@@ -5,7 +5,8 @@ Abstraction layer for different AI providers (OpenAI, Anthropic, etc.)
 """
 
 import os
-from typing import Optional
+import asyncio
+from typing import Optional, AsyncGenerator
 from abc import ABC, abstractmethod
 
 
@@ -15,6 +16,11 @@ class AIProvider(ABC):
     @abstractmethod
     def generate_response(self, prompt: str, max_tokens: int = 500) -> str:
         """Generate a response from the AI"""
+        pass
+
+    @abstractmethod
+    async def generate_response_stream(self, prompt: str, max_tokens: int = 500) -> AsyncGenerator[str, None]:
+        """Generate a response from the AI as a stream of chunks"""
         pass
 
 
@@ -42,8 +48,8 @@ class OpenAIProvider(AIProvider):
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a character in a murder mystery game. Stay in character and respond naturally."},
-                    {"role": "user", "content": prompt}
+                     {"role": "system", "content": "You are a character in a murder mystery game. Stay in character and respond naturally."},
+                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=max_tokens,
                 temperature=0.8
@@ -51,6 +57,31 @@ class OpenAIProvider(AIProvider):
             return response.choices[0].message.content.strip()
         except Exception as e:
             return f"[OpenAI API Error: {str(e)}]"
+
+    async def generate_response_stream(self, prompt: str, max_tokens: int = 500) -> AsyncGenerator[str, None]:
+        """Generate a response using OpenAI (streaming implementation not full for simplicity, returning whole string split by space)"""
+        if not self.client:
+            yield "[OpenAI not configured - please set OPENAI_API_KEY and install openai package]"
+            return
+            
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                     {"role": "system", "content": "You are a character in a murder mystery game. Stay in character and respond naturally."},
+                     {"role": "user", "content": prompt}
+                ],
+                max_tokens=max_tokens,
+                temperature=0.8,
+                stream=True
+            )
+            # In a real async app we'd use AsyncOpenAI, but for now we'll fake synchronous stream wrapping
+            for chunk in response:
+                if chunk.choices[0].delta.content:
+                    await asyncio.sleep(0)  # Yield to event loop
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            yield f"[OpenAI API Error: {str(e)}]"
 
 
 class AnthropicProvider(AIProvider):
@@ -86,6 +117,29 @@ class AnthropicProvider(AIProvider):
         except Exception as e:
             return f"[Anthropic API Error: {str(e)}]"
 
+    async def generate_response_stream(self, prompt: str, max_tokens: int = 500) -> AsyncGenerator[str, None]:
+        """Generate a response using Anthropic"""
+        if not self.client:
+            yield "[Anthropic not configured - please set ANTHROPIC_API_KEY and install anthropic package]"
+            return
+
+        try:
+            stream = self.client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.8,
+                stream=True
+            )
+            for event in stream:
+                if event.type == "content_block_delta":
+                    await asyncio.sleep(0)  # Yield to event loop
+                    yield event.delta.text
+        except Exception as e:
+            yield f"[Anthropic API Error: {str(e)}]"
+
 
 class MockProvider(AIProvider):
     """Mock provider for testing without API keys"""
@@ -97,6 +151,14 @@ class MockProvider(AIProvider):
             char_name = prompt.split("You are ")[1].split(",")[0].strip()
             return f"[{char_name} responds - Mock AI: Please configure an AI provider]"
         return "[Mock AI Response - Please configure OPENAI_API_KEY or ANTHROPIC_API_KEY]"
+
+    async def generate_response_stream(self, prompt: str, max_tokens: int = 500) -> AsyncGenerator[str, None]:
+        """Generate a mock response stream"""
+        response_text = self.generate_response(prompt, max_tokens)
+        words = response_text.split(" ")
+        for i, word in enumerate(words):
+            yield word + (" " if i < len(words) - 1 else "")
+            await asyncio.sleep(0.01)
 
 
 def get_ai_provider(provider_name: Optional[str] = None, model: Optional[str] = None) -> AIProvider:
