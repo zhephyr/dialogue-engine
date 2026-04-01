@@ -17,12 +17,11 @@ import json
 import sys
 import os
 import asyncio
-from typing import Dict, List, Any
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from example_scenario import create_example_scenario
-from fact_checker import FactChecker, IntentionAnalyzer
+from fact_checker import FactChecker
 
 
 # 4 questions per NPC: first 3 target the known contradictions; the 4th
@@ -81,40 +80,49 @@ def batch_cross_check(all_responses: dict, engine) -> list:
     if lila_saw and nathan_claim_no_pour:
         # If Nathan's responses contain an explicit denial but lila_saw_pouring is in world
         nathan_wine_resp = " ".join(
-            r["response"].lower()
-            for r in all_responses.get("Nathan Cross", [])
+            r["response"].lower() for r in all_responses.get("Nathan Cross", [])
         )
-        if "never" in nathan_wine_resp or "didn't pour" in nathan_wine_resp or "did not pour" in nathan_wine_resp:
-            contradictions.append({
-                "type": "DESIGN: Expected lie exposed",
-                "npc": "Nathan Cross",
-                "claim": "Claims he did not pour Elias's wine",
-                "contradicted_by": f"World fact 'lila_saw_pouring': {lila_saw}",
-                "severity": "DESIGN",
-            })
+        if (
+            "never" in nathan_wine_resp
+            or "didn't pour" in nathan_wine_resp
+            or "did not pour" in nathan_wine_resp
+        ):
+            contradictions.append(
+                {
+                    "type": "DESIGN: Expected lie exposed",
+                    "npc": "Nathan Cross",
+                    "claim": "Claims he did not pour Elias's wine",
+                    "contradicted_by": f"World fact 'lila_saw_pouring': {lila_saw}",
+                    "severity": "DESIGN",
+                }
+            )
 
     # Check: Nathan's early-departure claim vs arthur_saw_nathan_longer
     arthur_fact = world_state.get_fact("arthur_saw_nathan_longer")
     nathan_left_claim = world_state.get_fact("nathan_claim_left_early")
     if arthur_fact and nathan_left_claim:
-        contradictions.append({
-            "type": "DESIGN: Timeline contradiction",
-            "npc": "Nathan Cross vs Arthur Bell",
-            "claim": f"Nathan: {nathan_left_claim}",
-            "contradicted_by": f"Arthur: {arthur_fact}",
-            "severity": "DESIGN",
-        })
+        contradictions.append(
+            {
+                "type": "DESIGN: Timeline contradiction",
+                "npc": "Nathan Cross vs Arthur Bell",
+                "claim": f"Nathan: {nathan_left_claim}",
+                "contradicted_by": f"Arthur: {arthur_fact}",
+                "severity": "DESIGN",
+            }
+        )
 
     # Check: Helena saw Elias drinking later vs Nathan's early-departure claim
     helena_fact = world_state.get_fact("helena_saw_elias_drinking_late")
     if helena_fact and nathan_left_claim:
-        contradictions.append({
-            "type": "DESIGN: Timeline contradiction",
-            "npc": "Nathan Cross vs Helena Morven",
-            "claim": f"Nathan: {nathan_left_claim}",
-            "contradicted_by": f"Helena: {helena_fact}",
-            "severity": "DESIGN",
-        })
+        contradictions.append(
+            {
+                "type": "DESIGN: Timeline contradiction",
+                "npc": "Nathan Cross vs Helena Morven",
+                "claim": f"Nathan: {nathan_left_claim}",
+                "contradicted_by": f"Helena: {helena_fact}",
+                "severity": "DESIGN",
+            }
+        )
 
     return contradictions
 
@@ -133,7 +141,7 @@ async def run_playthrough():
     engine.fact_checker = None
 
     all_responses = {}
-    hard_contradictions = []   # Unintended contradictions (bugs in code)
+    hard_contradictions = []  # Unintended contradictions (bugs in code)
 
     for npc_name, questions in INTERROGATION_SCRIPT.items():
         print(f"\n{'─' * 60}")
@@ -143,15 +151,15 @@ async def run_playthrough():
 
         for question in questions:
             print(f"\nDETECTIVE: {question}")
-            
+
             full_response = ""
             metadata = {}
-            
+
             async for event in engine.converse(
                 npc_name, question, player_name="Investigator"
             ):
                 event_type = event.get("type")
-                
+
                 if event_type == "status":
                     print(f"[{npc_name} is {event.get('status')}...]", end="\r")
                 elif event_type == "dialogue_chunk":
@@ -159,16 +167,16 @@ async def run_playthrough():
                     print(chunk, end="", flush=True)
                     full_response += chunk
                 elif event_type == "tool_execution":
-                    print(f"\n[TOOL: {event.get('tool_name')}({event.get('kwargs')}) -> {event.get('result')}]")
+                    print(
+                        f"\n[TOOL: {event.get('tool_name')}({event.get('kwargs')}) -> {event.get('result')}]"
+                    )
                 elif event_type == "metadata":
                     metadata = event.get("data", {})
-            
-            print() # New line after streaming response
-            npc_responses.append({
-                "question": question, 
-                "response": full_response,
-                "metadata": metadata
-            })
+
+            print()  # New line after streaming response
+            npc_responses.append(
+                {"question": question, "response": full_response, "metadata": metadata}
+            )
 
         all_responses[npc_name] = npc_responses
 
@@ -179,9 +187,6 @@ async def run_playthrough():
 
     # Re-enable fact checker for post-hoc analysis
     engine.fact_checker = FactChecker(engine.world_state, engine.ai_provider)
-
-    # Validate each captured NPC response against world state
-    npc_map = engine.npcs  # {lowercased_name: NPCAgent}
 
     # Snapshot world-state fact keys BEFORE post-hoc validation so we can
     # identify which new facts get added during the scan.
@@ -197,13 +202,17 @@ async def run_playthrough():
             )
             for r in results:
                 if not r.is_valid and not r.is_lie and not r.is_omission:
-                    hard_contradictions.append({
-                        "npc": npc_name,
-                        "question": entry["question"],
-                        "claim": r.claim["claim_text"],
-                        "reason": r.reason,
-                    })
-                    print(f"  ⚠️  HARD CONTRADICTION [{npc_name}]: '{r.claim['claim_text']}' — {r.reason}")
+                    hard_contradictions.append(
+                        {
+                            "npc": npc_name,
+                            "question": entry["question"],
+                            "claim": r.claim["claim_text"],
+                            "reason": r.reason,
+                        }
+                    )
+                    print(
+                        f"  ⚠️  HARD CONTRADICTION [{npc_name}]: '{r.claim['claim_text']}' — {r.reason}"
+                    )
 
     # Identify new facts harvested from NPC dialogue
     post_scan_keys = set(engine.world_state.facts.keys())
@@ -230,11 +239,13 @@ async def run_playthrough():
     if hard_contradictions:
         print(f"\n❌ UNINTENDED (BUG) CONTRADICTIONS: {len(hard_contradictions)}")
         for hc in hard_contradictions:
-            print(f"  • [{hc['npc']}] \"{hc['claim']}\" — {hc['reason']}")
+            print(f'  • [{hc["npc"]}] "{hc["claim"]}" — {hc["reason"]}')
     else:
         print("\n✅ No unintended contradictions detected.")
 
-    print(f"\n📋 DESIGN-LEVEL CONTRADICTIONS (expected, confirms mystery works): {len(design_contradictions)}")
+    print(
+        f"\n📋 DESIGN-LEVEL CONTRADICTIONS (expected, confirms mystery works): {len(design_contradictions)}"
+    )
     for dc in design_contradictions:
         print(f"  • [{dc['type']}] {dc['npc']}: {dc['claim']}")
         print(f"    ↳ Contradicted by: {dc['contradicted_by']}")

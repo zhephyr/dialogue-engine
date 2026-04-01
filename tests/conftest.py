@@ -1,9 +1,11 @@
 import pytest
-from world_state import WorldState, TimeBlock
+from world_state import WorldState
+
 
 @pytest.fixture
 def empty_world():
     return WorldState()
+
 
 @pytest.fixture
 def populated_world():

@@ -38,7 +38,7 @@ def parse_version(version_str):
 def increment_version(current, increment_type):
     """Increment version based on type (major, minor, patch)"""
     major, minor, patch = parse_version(current)
-    
+
     if increment_type == "major":
         return f"{major + 1}.0.0"
     elif increment_type == "minor":
@@ -53,26 +53,24 @@ def update_version_file(new_version, message=""):
     """Update version.py with new version and history entry"""
     version_file = Path("version.py")
     content = version_file.read_text()
-    
+
     # Update version string
     content = re.sub(
-        r'__version__\s*=\s*"[^"]+"',
-        f'__version__ = "{new_version}"',
-        content
+        r'__version__\s*=\s*"[^"]+"', f'__version__ = "{new_version}"', content
     )
-    
+
     # Add to version history if message provided
     if message:
         today = date.today().strftime("%Y-%m-%d")
-        history_entry = f"{new_version} ({today})\n{'-' * (len(new_version) + 12)}\n- {message}\n\n"
-        
+        history_entry = (
+            f"{new_version} ({today})\n{'-' * (len(new_version) + 12)}\n- {message}\n\n"
+        )
+
         # Insert after VERSION_HISTORY = """
         content = re.sub(
-            r'(VERSION_HISTORY\s*=\s*""")\n',
-            f'\\1\n{history_entry}',
-            content
+            r'(VERSION_HISTORY\s*=\s*""")\n', f"\\1\n{history_entry}", content
         )
-    
+
     version_file.write_text(content)
     print(f"✓ Updated version.py to {new_version}")
 
@@ -81,39 +79,39 @@ def update_readme(new_version):
     """Update README.md with new version"""
     readme_file = Path("README.md")
     content = readme_file.read_text()
-    
+
     # Update version badge/header
     content = re.sub(
-        r'\*\*Version \d+\.\d+\.\d+\*\*',
-        f'**Version {new_version}**',
-        content
+        r"\*\*Version \d+\.\d+\.\d+\*\*", f"**Version {new_version}**", content
     )
-    
+
     readme_file.write_text(content)
     print(f"✓ Updated README.md to {new_version}")
 
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python update_version.py <version|major|minor|patch> [--message 'Release notes']")
+        print(
+            "Usage: python update_version.py <version|major|minor|patch> [--message 'Release notes']"
+        )
         print("\nExamples:")
         print("  python update_version.py patch")
         print("  python update_version.py minor --message 'Added new features'")
         print("  python update_version.py 0.2.0 --message 'Major update'")
         sys.exit(1)
-    
+
     current_version = get_current_version()
     print(f"Current version: {current_version}")
-    
+
     version_arg = sys.argv[1]
-    
+
     # Parse message if provided
     message = ""
     if "--message" in sys.argv:
         msg_idx = sys.argv.index("--message")
         if msg_idx + 1 < len(sys.argv):
             message = sys.argv[msg_idx + 1]
-    
+
     # Determine new version
     if version_arg in ["major", "minor", "patch"]:
         new_version = increment_version(current_version, version_arg)
@@ -125,15 +123,17 @@ def main():
         except ValueError as e:
             print(f"Error: {e}")
             sys.exit(1)
-    
+
     print(f"New version: {new_version}")
-    
+
     # Confirm
-    response = input(f"\nUpdate version from {current_version} to {new_version}? [y/N] ")
+    response = input(
+        f"\nUpdate version from {current_version} to {new_version}? [y/N] "
+    )
     if response.lower() not in ["y", "yes"]:
         print("Cancelled.")
         sys.exit(0)
-    
+
     # Perform updates
     try:
         update_version_file(new_version, message)

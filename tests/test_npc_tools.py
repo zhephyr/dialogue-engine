@@ -5,6 +5,7 @@ from npc_agent import NPCAgent
 from dialogue_engine import DialogueEngine
 from ai_provider import MockProvider
 
+
 @pytest.mark.asyncio
 async def test_engine_executes_tool_request():
     """
@@ -25,14 +26,23 @@ async def test_engine_executes_tool_request():
             else:
                 # First pass: request tool
                 yield "Wait, let me recall something.\n"
-                yield "<tool>" + json.dumps({"capability": "CheckFact", "kwargs": {"topic": "The murder weapon"}}) + "</tool>"
+                yield (
+                    "<tool>"
+                    + json.dumps(
+                        {
+                            "capability": "CheckFact",
+                            "kwargs": {"topic": "The murder weapon"},
+                        }
+                    )
+                    + "</tool>"
+                )
 
     engine.ai_provider = ToolRequestingMockProvider()
 
     chunks = []
     metadata = {}
     tool_events = []
-    
+
     async for event in engine.converse("Alice", "Do you remember the weapon?"):
         if event["type"] == "dialogue_chunk":
             chunks.append(event["chunk"])
@@ -40,7 +50,7 @@ async def test_engine_executes_tool_request():
             metadata.update(event["data"])
         elif event["type"] == "tool_execution":
             tool_events.append(event)
-            
+
     response = "".join(chunks)
 
     # We expect the tool JSON string to NOT be shown raw to the user (i.e. stripped from final dialogue)

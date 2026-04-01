@@ -1,13 +1,13 @@
-from typing import Dict, Any, Callable, Type
+from typing import Dict, Any
 import json
-import inspect
-from pydantic import BaseModel
+
 
 class NPCTool:
     """Base class for an NPC Tool Capability."""
+
     name: str = ""
     description: str = ""
-    
+
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
         """Returns the JSON schema for this tool's expected kwargs (dummy implementation for now)."""
@@ -17,10 +17,11 @@ class NPCTool:
         """Execute the tool on behalf of the NPC."""
         raise NotImplementedError
 
+
 class CheckFactTool(NPCTool):
     name = "CheckFact"
     description = "Check your current knowledge or ask the engine to verify a fact from the world."
-    
+
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
         return {
@@ -28,29 +29,33 @@ class CheckFactTool(NPCTool):
             "properties": {
                 "topic": {"type": "string", "description": "The topic or fact to check"}
             },
-            "required": ["topic"]
+            "required": ["topic"],
         }
-        
+
     def execute(self, npc, world_state, topic: str = "", **kwargs) -> str:
         # Simplistic implementation
         if npc.knows_fact(topic):
             return f"Fact verified internally: I know about {topic}."
         return f"World checked: No immediate facts found for {topic}."
 
+
 class RecallMemoryTool(NPCTool):
     name = "RecallMemory"
     description = "Recall past memories or conversation turns."
-    
+
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
         return {
             "type": "object",
             "properties": {
-                "query": {"type": "string", "description": "Keywords of memory to recall"}
+                "query": {
+                    "type": "string",
+                    "description": "Keywords of memory to recall",
+                }
             },
-            "required": ["query"]
+            "required": ["query"],
         }
-        
+
     def execute(self, npc, world_state, query: str = "", **kwargs) -> str:
         results = [m for m in npc.memory if query.lower() in m.content.lower()]
         if not results:
@@ -60,18 +65,18 @@ class RecallMemoryTool(NPCTool):
 
 TOOL_REGISTRY: Dict[str, NPCTool] = {
     "CheckFact": CheckFactTool(),
-    "RecallMemory": RecallMemoryTool()
+    "RecallMemory": RecallMemoryTool(),
 }
+
 
 def get_all_tool_schemas() -> str:
     schemas = []
     for name, tool in TOOL_REGISTRY.items():
-        schemas.append({
-            "name": name,
-            "description": tool.description,
-            "schema": tool.get_schema()
-        })
+        schemas.append(
+            {"name": name, "description": tool.description, "schema": tool.get_schema()}
+        )
     return json.dumps(schemas, indent=2)
+
 
 def execute_tool(tool_name: str, npc, world_state, kwargs: Dict[str, Any]) -> str:
     tool = TOOL_REGISTRY.get(tool_name)

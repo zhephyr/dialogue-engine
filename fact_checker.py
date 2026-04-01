@@ -15,16 +15,18 @@ import json
 
 class Claim(Dict):
     """Represents a factual claim extracted from dialogue"""
+
     def __init__(self, claim_text: str, category: str, key: str, value: Any):
         super().__init__()
-        self['claim_text'] = claim_text
-        self['category'] = category
-        self['key'] = key
-        self['value'] = value
+        self["claim_text"] = claim_text
+        self["category"] = category
+        self["key"] = key
+        self["value"] = value
 
 
 class ValidationResult:
     """Result of validating a claim against world state"""
+
     def __init__(
         self,
         is_valid: bool,
@@ -32,7 +34,7 @@ class ValidationResult:
         reason: str,
         world_truth: Optional[Any] = None,
         is_lie: bool = False,
-        is_omission: bool = False
+        is_omission: bool = False,
     ):
         self.is_valid = is_valid
         self.claim = claim
@@ -40,7 +42,7 @@ class ValidationResult:
         self.world_truth = world_truth
         self.is_lie = is_lie
         self.is_omission = is_omission
-    
+
     def __repr__(self) -> str:
         status = "VALID" if self.is_valid else ("LIE" if self.is_lie else "INVALID")
         return f"ValidationResult({status}: {self.claim['claim_text']})"
@@ -51,22 +53,25 @@ class FactChecker:
     Validates NPC statements against the world state to ensure consistency.
     Tracks intentional lies and omissions.
     """
-    
+
     def __init__(self, world_state: WorldState, ai_provider: Optional[Any] = None):
         self.world_state = world_state
         self.ai_provider = ai_provider
         self.validation_history: List[ValidationResult] = []
-    
+
     def extract_claims_from_statement(self, statement: str) -> List[Claim]:
         """
         Extract factual claims from a statement.
-        Uses an AIProvider if configured (and not mock), otherwise falls back 
+        Uses an AIProvider if configured (and not mock), otherwise falls back
         to pattern matching heuristics.
         """
         claims = []
-        
+
         # Check if we should attempt AI-based extraction
-        if self.ai_provider and self.ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
+        if self.ai_provider and self.ai_provider.__class__.__name__ not in [
+            "MockProvider",
+            "CustomMockProvider",
+        ]:
             prompt = f"""Extract standalone factual claims from this statement: "{statement}"
 Return ONLY a valid JSON list of objects. Each object should have:
 - claim_text: The exact string representing the claim
@@ -90,83 +95,91 @@ JSON:"""
                         else:
                             values = [raw_value]
                         for val in values:
-                            claims.append(Claim(
-                                claim_text=item.get("claim_text", statement),
-                                category=item.get("category", "other"),
-                                key=item.get("key", "unknown"),
-                                value=str(val)
-                            ))
+                            claims.append(
+                                Claim(
+                                    claim_text=item.get("claim_text", statement),
+                                    category=item.get("category", "other"),
+                                    key=item.get("key", "unknown"),
+                                    value=str(val),
+                                )
+                            )
                     return claims
-            except Exception as e:
+            except Exception:
                 # Fall back to heuristic pattern matching if AI fails or returns invalid format
                 pass
-        
+
         # Pattern matching for common claim types
         # Location claims: "I was in the library", "I saw him in the garden"
         location_patterns = [
             r"(?:I (?:was|am)|he (?:was|is)|she (?:was|is)|they (?:were|are)) (?:in|at) (?:the )?(\w+)",
             r"(?:saw|found|met) (?:\w+ )?(?:in|at) (?:the )?(\w+)",
         ]
-        
+
         for pattern in location_patterns:
             matches = re.finditer(pattern, statement, re.IGNORECASE)
             for match in matches:
                 location = match.group(1)
-                claims.append(Claim(
-                    claim_text=match.group(0),
-                    category="location",
-                    key=f"mentioned_location",
-                    value=location
-                ))
-        
+                claims.append(
+                    Claim(
+                        claim_text=match.group(0),
+                        category="location",
+                        key="mentioned_location",
+                        value=location,
+                    )
+                )
+
         # Time claims: "at 9pm", "last night", "this morning"
         time_patterns = [
             r"at (\d{1,2}(?::\d{2})?\s*(?:am|pm))",
             r"(last night|this morning|yesterday|tonight)",
         ]
-        
+
         for pattern in time_patterns:
             matches = re.finditer(pattern, statement, re.IGNORECASE)
             for match in matches:
                 time_ref = match.group(1)
-                claims.append(Claim(
-                    claim_text=match.group(0),
-                    category="time",
-                    key=f"mentioned_time",
-                    value=time_ref
-                ))
-        
+                claims.append(
+                    Claim(
+                        claim_text=match.group(0),
+                        category="time",
+                        key="mentioned_time",
+                        value=time_ref,
+                    )
+                )
+
         # Person mentions: "I saw John", "spoke with Mary"
         person_patterns = [
             r"(?:saw|met|spoke with|talked to) (\w+)",
             r"(\w+) (?:was|is) (?:there|here|present)",
         ]
-        
+
         for pattern in person_patterns:
             matches = re.finditer(pattern, statement, re.IGNORECASE)
             for match in matches:
                 person = match.group(1)
                 # Only track if it's a known character
                 if person in self.world_state.characters:
-                    claims.append(Claim(
-                        claim_text=match.group(0),
-                        category="person",
-                        key=f"mentioned_person",
-                        value=person
-                    ))
-        
+                    claims.append(
+                        Claim(
+                            claim_text=match.group(0),
+                            category="person",
+                            key="mentioned_person",
+                            value=person,
+                        )
+                    )
+
         return claims
-    
+
     def validate_claim(
         self,
         claim: Claim,
         character: NPCAgent,
         is_intentional_lie: bool = False,
-        is_intentional_omission: bool = False
+        is_intentional_omission: bool = False,
     ) -> ValidationResult:
         """
         Validate a single claim against the world state.
-        
+
         Args:
             claim: The claim to validate
             character: The NPC making the claim
@@ -174,14 +187,14 @@ JSON:"""
             is_intentional_omission: Whether the character intends to omit info
         """
         # Check if the claim matches world state
-        category = claim['category']
-        key = claim['key']
-        claimed_value = claim['value']
-        
+        category = claim["category"]
+        key = claim["key"]
+        claimed_value = claim["value"]
+
         is_valid = False
         world_truth = None
         reason = ""
-        
+
         # For location claims, verify the location exists.
         # Normalise by:
         #   - Replacing underscores with spaces ('sitting_room' → 'sitting room')
@@ -189,11 +202,17 @@ JSON:"""
         #   - Case-insensitive comparison
         # So 'the gallery', 'Gallery', and 'sitting_room' all resolve correctly.
         if category == "location":
-            _ARTICLES = re.compile(r'^(?:the|a|an)\s+', re.IGNORECASE)
-            normalised = _ARTICLES.sub("", str(claimed_value).replace("_", " ")).strip().lower()
+            _ARTICLES = re.compile(r"^(?:the|a|an)\s+", re.IGNORECASE)
+            normalised = (
+                _ARTICLES.sub("", str(claimed_value).replace("_", " ")).strip().lower()
+            )
             matched_loc = next(
-                (loc for loc in self.world_state.locations if loc.lower() == normalised),
-                None
+                (
+                    loc
+                    for loc in self.world_state.locations
+                    if loc.lower() == normalised
+                ),
+                None,
             )
             if matched_loc:
                 is_valid = True
@@ -201,7 +220,7 @@ JSON:"""
                 world_truth = matched_loc
             else:
                 reason = f"Location '{claimed_value}' does not exist in world state"
-        
+
         # For person mentions, verify the person (or a known character whose full name
         # contains the claimed value) exists.  This handles:
         #   - First-name-only mentions  ('Elias'  → 'Elias Morven')
@@ -213,32 +232,68 @@ JSON:"""
         elif category == "person":
             _NOISE = {
                 # Articles and determiners
-                "my", "her", "his", "the", "a", "an", "our", "their",
-                "your", "its", "this", "that",
+                "my",
+                "her",
+                "his",
+                "the",
+                "a",
+                "an",
+                "our",
+                "their",
+                "your",
+                "its",
+                "this",
+                "that",
                 # Relational honorifics / adjectives common in Victorian dialogue
-                "dear", "poor", "late", "beloved", "good", "old", "young",
-                "great", "kind", "unfortunate", "wretched",
+                "dear",
+                "poor",
+                "late",
+                "beloved",
+                "good",
+                "old",
+                "young",
+                "great",
+                "kind",
+                "unfortunate",
+                "wretched",
                 # Kinship and role nouns that are never character proper-names
-                "brother", "sister", "mother", "father", "son", "daughter",
-                "victim", "host", "guest", "man", "woman", "person",
-                "sir", "mr", "mrs", "miss", "lord", "lady",
+                "brother",
+                "sister",
+                "mother",
+                "father",
+                "son",
+                "daughter",
+                "victim",
+                "host",
+                "guest",
+                "man",
+                "woman",
+                "person",
+                "sir",
+                "mr",
+                "mrs",
+                "miss",
+                "lord",
+                "lady",
             }
             claimed_lower = str(claimed_value).lower()
             # Only test words from claimed_value that are NOT noise words
             signal_words = [
-                w for w in claimed_lower.split()
-                if w not in _NOISE and len(w) >= 3
+                w for w in claimed_lower.split() if w not in _NOISE and len(w) >= 3
             ]
             matched_char = None
             if signal_words:
                 matched_char = next(
-                    (char for char in self.world_state.characters
-                     if any(
-                         part.lower() in signal_words or
-                         any(sw in part.lower() for sw in signal_words)
-                         for part in char.split()
-                     )),
-                    None
+                    (
+                        char
+                        for char in self.world_state.characters
+                        if any(
+                            part.lower() in signal_words
+                            or any(sw in part.lower() for sw in signal_words)
+                            for part in char.split()
+                        )
+                    ),
+                    None,
                 )
             if matched_char:
                 is_valid = True
@@ -259,7 +314,7 @@ JSON:"""
                 is_valid = True
                 reason = "Unrecognised person phrase discarded as new information"
                 world_truth = None
-        
+
         # For specific fact keys, check against world state ONLY when the stored fact
         # was authored by the world engine itself (source="world").
         # NPC-statement-derived claims must never be validated against world facts by key
@@ -275,7 +330,7 @@ JSON:"""
                 reason = "Matches world state fact"
             else:
                 reason = f"Contradicts world state. Truth: {world_truth}"
-        
+
         # Unknown / AI-generated claims are treated as new information.
         # Always add under a UUID-suffixed key to prevent future key collisions.
         else:
@@ -287,16 +342,16 @@ JSON:"""
                 is_public=True,
                 witnesses=[character.name],
                 source=f"Statement by {character.name}",
-                responsible_npc=character.name
+                responsible_npc=character.name,
             )
             is_valid = True
             reason = "New information added to world state"
             world_truth = claimed_value
-            
+
         # Check intentional omissions
         if is_intentional_omission:
             reason = "Intentional omission by character"
-            
+
         # Check intentional lies
         if is_intentional_lie:
             reason = "Intentional lie by character"
@@ -307,73 +362,73 @@ JSON:"""
             reason=reason,
             world_truth=world_truth,
             is_lie=is_intentional_lie,
-            is_omission=is_intentional_omission
+            is_omission=is_intentional_omission,
         )
-        
+
         self.validation_history.append(result)
         return result
-    
+
     def validate_statement(
         self,
         statement: str,
         character: NPCAgent,
         marked_lies: Optional[List[str]] = None,
-        marked_omissions: Optional[List[str]] = None
+        marked_omissions: Optional[List[str]] = None,
     ) -> Tuple[bool, List[ValidationResult]]:
         """
         Validate an entire statement from an NPC.
-        
+
         Args:
             statement: The statement to validate
             character: The NPC making the statement
             marked_lies: List of specific claims marked as intentional lies
             marked_omissions: List of specific claims marked as intentional omissions
-        
+
         Returns:
             Tuple of (is_valid, list of validation results)
         """
         marked_lies = marked_lies or []
         marked_omissions = marked_omissions or []
-        
+
         # Extract claims
         claims = self.extract_claims_from_statement(statement)
-        
+
         # Validate each claim
         results = []
         all_valid = True
-        
+
         for claim in claims:
-            is_lie = claim['claim_text'] in marked_lies
-            is_omission = claim['claim_text'] in marked_omissions
-            
+            is_lie = claim["claim_text"] in marked_lies
+            is_omission = claim["claim_text"] in marked_omissions
+
             result = self.validate_claim(claim, character, is_lie, is_omission)
             results.append(result)
-            
+
             if not result.is_valid and not result.is_lie:
                 all_valid = False
-        
+
         return all_valid, results
-    
+
     def check_knowledge_consistency(self, character: NPCAgent, fact_key: str) -> bool:
         """
         Check if a character should know a particular fact based on world state.
         """
         return self.world_state.character_knows_fact(character.name, fact_key)
-    
+
     def get_validation_summary(self) -> Dict[str, Any]:
         """Get a summary of all validations performed"""
         total = len(self.validation_history)
         valid = len([r for r in self.validation_history if r.is_valid])
         lies = len([r for r in self.validation_history if r.is_lie])
         omissions = len([r for r in self.validation_history if r.is_omission])
-        
+
         return {
             "total_validations": total,
             "valid_claims": valid,
             "invalid_claims": total - valid,
             "intentional_lies": lies,
             "omissions": omissions,
-            "accuracy_rate": (valid / total * 100) if total > 0 else 0
+            "accuracy_rate": (valid / total * 100) if total > 0 else 0,
         }
 
 
@@ -383,17 +438,17 @@ class IntentionAnalyzer:
     In practice, this works with the AIProvider to identify deceptions by comparing
     the character's statement against their known facts and secrets.
     """
-    
+
     @staticmethod
     def analyze_for_deception(
         statement: str,
         character: NPCAgent,
         world_state: WorldState,
-        ai_provider: Optional[Any] = None
+        ai_provider: Optional[Any] = None,
     ) -> Tuple[List[str], List[str]]:
         """
         Analyze a statement to identify potential lies and omissions.
-        
+
         When a real AI provider is supplied (not MockProvider / CustomMockProvider),
         this method:
           1. Builds a context-rich prompt with the character's secrets, known facts,
@@ -402,9 +457,9 @@ class IntentionAnalyzer:
              { "lies": ["<deceptive phrase>", ...], "omissions": ["<omitted topic>", ...] }
           3. Parses the JSON response and extracts the lists.
           4. Merges AI-detected deceptions with heuristic results (deduplicates).
-        
+
         Falls back to heuristics alone on any AI call or parse failure.
-        
+
         Returns:
             Tuple of (likely_lies, likely_omissions)
         """
@@ -412,23 +467,28 @@ class IntentionAnalyzer:
         likely_omissions: List[str] = []
 
         # --- AI-powered deception detection ---
-        if ai_provider and ai_provider.__class__.__name__ not in ["MockProvider", "CustomMockProvider"]:
+        if ai_provider and ai_provider.__class__.__name__ not in [
+            "MockProvider",
+            "CustomMockProvider",
+        ]:
             try:
                 # Gather world context: public facts the character might contradict
                 public_facts = world_state.query_facts(is_public=True)
-                facts_text = "\n".join(
-                    f"  - {f.key}: {f.value}" for f in public_facts
-                ) or "  (none)"
+                facts_text = (
+                    "\n".join(f"  - {f.key}: {f.value}" for f in public_facts)
+                    or "  (none)"
+                )
 
                 # Character's own knowledge base
-                known_facts_text = "\n".join(
-                    f"  - {k}: {v}" for k, v in character.known_facts.items()
-                ) or "  (none)"
+                known_facts_text = (
+                    "\n".join(f"  - {k}: {v}" for k, v in character.known_facts.items())
+                    or "  (none)"
+                )
 
                 # Character's secrets (things they may be motivated to hide)
-                secrets_text = "\n".join(
-                    f"  - {s}" for s in character.secrets
-                ) or "  (none)"
+                secrets_text = (
+                    "\n".join(f"  - {s}" for s in character.secrets) or "  (none)"
+                )
 
                 prompt = f"""You are a deception analyst reviewing a statement made by {character.name}.
 
@@ -467,12 +527,14 @@ If none, return empty lists. JSON:"""
                     # Validate each entry is a non-empty string
                     if isinstance(ai_lies, list):
                         likely_lies.extend(
-                            item for item in ai_lies
+                            item
+                            for item in ai_lies
                             if isinstance(item, str) and item.strip()
                         )
                     if isinstance(ai_omissions, list):
                         likely_omissions.extend(
-                            item for item in ai_omissions
+                            item
+                            for item in ai_omissions
                             if isinstance(item, str) and item.strip()
                         )
 

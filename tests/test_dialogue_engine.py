@@ -15,14 +15,18 @@ from ai_provider import MockProvider
 
 # --- Fixtures ---
 
+
 @pytest.fixture
 def engine():
     """Create a DialogueEngine using a MockProvider with fact-checking disabled."""
     ws = WorldState()
-    return DialogueEngine(world_state=ws, ai_provider=MockProvider(), enable_fact_checking=False)
+    return DialogueEngine(
+        world_state=ws, ai_provider=MockProvider(), enable_fact_checking=False
+    )
 
 
 # --- NPC Management Tests ---
+
 
 def test_add_and_get_npc(engine):
     """Adding an NPC should register it under its lowercase name for case-insensitive lookup."""
@@ -43,6 +47,7 @@ def test_set_scene(engine):
 
 
 # --- Conversation Tests ---
+
 
 @pytest.mark.asyncio
 async def test_converse_basic(engine):
@@ -81,7 +86,9 @@ async def test_converse_with_fact_checking():
     - Correctly identify a true location claim as valid
     """
     ws = WorldState()
-    engine = DialogueEngine(world_state=ws, ai_provider=MockProvider(), enable_fact_checking=True)
+    engine = DialogueEngine(
+        world_state=ws, ai_provider=MockProvider(), enable_fact_checking=True
+    )
     npc = NPCAgent("Bob", "Grumpy")
     engine.add_npc(npc)
     # Register the location so the claim validates as true
@@ -101,7 +108,7 @@ async def test_converse_with_fact_checking():
             chunks.append(event["chunk"])
         elif event["type"] == "metadata":
             metadata.update(event["data"])
-            
+
     response = "".join(chunks)
 
     assert "library" in response.lower()
@@ -123,13 +130,14 @@ async def test_converse_npc_not_found(engine):
             chunks.append(event["chunk"])
         elif event["type"] == "metadata":
             metadata.update(event["data"])
-            
+
     response = "".join(chunks)
     assert "Error" in response
     assert "error" in metadata
 
 
 # --- Status & History Tests ---
+
 
 def test_get_npc_status(engine):
     """NPC status should include name, location, and other tracked attributes."""
@@ -148,7 +156,8 @@ async def test_reset_conversation(engine):
     npc = NPCAgent("Alice", "Friendly")
     engine.add_npc(npc)
     # Establish at least one turn
-    async for _ in engine.converse("Alice", "Hello"): pass
+    async for _ in engine.converse("Alice", "Hello"):
+        pass
 
     assert len(engine.get_conversation_history("Alice")) > 0
     engine.reset_conversation("Alice")
