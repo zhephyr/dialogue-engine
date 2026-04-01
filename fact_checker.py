@@ -286,7 +286,8 @@ JSON:"""
                 category=category,
                 is_public=True,
                 witnesses=[character.name],
-                source=f"Statement by {character.name}"
+                source=f"Statement by {character.name}",
+                responsible_npc=character.name
             )
             is_valid = True
             reason = "New information added to world state"

@@ -26,7 +26,8 @@ class DialogueEngine:
         world_state: WorldState,
         ai_provider: Optional[AIProvider] = None,
         enable_fact_checking: bool = True,
-        verbose: bool = False
+        verbose: bool = False,
+        log_file: Optional[str] = None
     ):
         """
         Initialize the dialogue engine.
@@ -43,7 +44,16 @@ class DialogueEngine:
         self.ai_provider = ai_provider or get_ai_provider()
         self.fact_checker = FactChecker(self.world_state, self.ai_provider) if enable_fact_checking else None
         self.verbose = verbose
+        self.log_file = log_file
         self.current_scene = ""
+        
+        # Token metrics
+        self.total_prompt_tokens = 0
+        self.total_completion_tokens = 0
+        
+        if self.log_file and not os.path.exists(self.log_file):
+            with open(self.log_file, "w") as f:
+                f.write("")
         
         # Conversation state
         self.active_conversations: Dict[str, List[Dict[str, str]]] = {}
@@ -152,12 +162,14 @@ class DialogueEngine:
                                 if potential_start > 0:
                                     safe_chunk = buffer[:potential_start]
                                     npc_response_chunks.append(safe_chunk)
+                                    self._log_event({"type": "dialogue_chunk", "chunk": safe_chunk, "speaker": npc.name})
                                     yield {"type": "dialogue_chunk", "chunk": safe_chunk}
                                     prompt += safe_chunk
                                 buffer = buffer[potential_start:]
                                 break
                             else:
                                 npc_response_chunks.append(buffer)
+                                self._log_event({"type": "dialogue_chunk", "chunk": buffer, "speaker": npc.name})
                                 yield {"type": "dialogue_chunk", "chunk": buffer}
                                 prompt += buffer
                                 buffer = ""
@@ -171,8 +183,12 @@ class DialogueEngine:
                                 tool_data = json.loads(tool_json_str)
                                 tool_name = tool_data.get("capability")
                                 kwargs = tool_data.get("kwargs", {})
+                                # Injects responsible_npc dynamically into kwargs
+                                kwargs["responsible_npc"] = npc.name
                                 result = execute_tool(tool_name, npc, self.world_state, kwargs)
-                                yield {"type": "tool_execution", "tool_name": tool_name, "kwargs": kwargs, "result": result}
+                                event = {"type": "tool_execution", "tool_name": tool_name, "kwargs": kwargs, "result": result, "speaker": npc.name}
+                                self._log_event(event)
+                                yield event
                                 prompt += f"\\n\\n[System: Tool '{tool_name}' returned: {result}]\\nContinue your response naturally:\\n"
                             except Exception as e:
                                 prompt += f"\\n\\n[System: Tool Error: {e}]\\nContinue your response naturally:\\n"
@@ -193,10 +209,17 @@ class DialogueEngine:
             if not tool_executed:
                 if buffer and not in_tool_tag:
                     npc_response_chunks.append(buffer)
+                    self._log_event({"type": "dialogue_chunk", "chunk": buffer, "speaker": npc.name})
                     yield {"type": "dialogue_chunk", "chunk": buffer}
                 break
             
         npc_response = "".join(npc_response_chunks)
+        
+        # Track Tokens
+        if hasattr(self.ai_provider, "get_token_usage"):
+            tu = self.ai_provider.get_token_usage()
+            self.total_prompt_tokens = tu.get("prompt_tokens", 0)
+            self.total_completion_tokens = tu.get("completion_tokens", 0)
         
         if self.verbose:
             print(f"\n[Engine] {npc.name} responded: {npc_response}")
@@ -266,6 +289,7 @@ class DialogueEngine:
                     flag = " [LIE]" if result.is_lie else (" [OMISSION]" if result.is_omission else "")
                     print(f"  {status} {result.claim['claim_text']}{flag}")
         
+        self._log_event({"type": "metadata", "data": metadata})
         yield {"type": "metadata", "data": metadata}
 
         # After conversation turn, conditionally compact memory to save context limits
@@ -299,6 +323,22 @@ class DialogueEngine:
             if self.verbose:
                 print(f"[Engine] Compacted {len(turns_to_condense)} turns of conversation for {npc.name}.")
     
+    def _log_event(self, event: Dict[str, Any]) -> None:
+        """Internal helper to log engine streams to jsonl."""
+        if not self.log_file:
+            return
+        try:
+            import json
+            # Append local time
+            from datetime import datetime
+            event_copy = dict(event)
+            event_copy["timestamp"] = datetime.now().isoformat()
+            with open(self.log_file, "a") as f:
+                f.write(json.dumps(event_copy) + "\n")
+        except Exception as e:
+            if self.verbose:
+                print(f"[Engine] Failed to log event: {e}")
+                
     def get_conversation_history(self, npc_name: str, num_turns: int = 10) -> List[Dict[str, str]]:
         """Get conversation history with an NPC"""
         npc = self.get_npc(npc_name)
@@ -373,7 +413,12 @@ class DialogueEngine:
             "total_npcs": len(self.npcs),
             "npc_names": self.get_all_npcs(),
             "world_state": self.world_state.get_world_summary(),
-            "ai_provider": self.ai_provider.__class__.__name__
+            "ai_provider": self.ai_provider.__class__.__name__,
+            "token_usage": {
+                "prompt_tokens": self.total_prompt_tokens,
+                "completion_tokens": self.total_completion_tokens,
+                "total_tokens": self.total_prompt_tokens + self.total_completion_tokens
+            }
         }
         
         if self.fact_checker:

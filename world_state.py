@@ -23,6 +23,7 @@ class Fact(BaseModel):
     event_id: Optional[str] = None  # Which event does this fact relate to?
     schedule_day: Optional[int] = None  # Which day on schedule?
     schedule_period: Optional[str] = None  # Which time period?
+    responsible_npc: Optional[str] = None  # The NPC that brought this fact to light
 
 
 class Event(BaseModel):
@@ -37,6 +38,7 @@ class Event(BaseModel):
     # NEW: Event sequencing
     sequence_order: int = 0  # Order within the same time period (0 = first, 1 = second, etc.)
     caused_by: Optional[str] = None  # event_id that caused this event
+    responsible_npc: Optional[str] = None  # The NPC that instantiated this event
 
 
 class Relationship(BaseModel):
@@ -102,7 +104,8 @@ class WorldState:
                  source: str = "world", timestamp: Optional[str] = None,
                  event_id: Optional[str] = None,
                  schedule_day: Optional[int] = None,
-                 schedule_period: Optional[str] = None) -> None:
+                 schedule_period: Optional[str] = None,
+                 responsible_npc: Optional[str] = None) -> None:
         """Add or update a fact in the world state"""
         self.facts[key] = Fact(
             key=key,
@@ -114,7 +117,8 @@ class WorldState:
             timestamp=timestamp,
             event_id=event_id,
             schedule_day=schedule_day,
-            schedule_period=schedule_period
+            schedule_period=schedule_period,
+            responsible_npc=responsible_npc
         )
         
     def get_fact(self, key: str) -> Optional[Any]:
@@ -160,7 +164,8 @@ class WorldState:
                  witnesses: Optional[List[str]] = None,
                  details: Optional[Dict[str, Any]] = None,
                  sequence_order: int = 0,
-                 caused_by: Optional[str] = None) -> None:
+                 caused_by: Optional[str] = None,
+                 responsible_npc: Optional[str] = None) -> None:
         """Add an event to the timeline"""
         self.events[event_id] = Event(
             event_id=event_id,
@@ -171,7 +176,8 @@ class WorldState:
             witnesses=witnesses or [],
             details=details or {},
             sequence_order=sequence_order,
-            caused_by=caused_by
+            caused_by=caused_by,
+            responsible_npc=responsible_npc
         )
         
         # Add location and characters to tracking
