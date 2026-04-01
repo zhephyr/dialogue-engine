@@ -1,5 +1,5 @@
 """
-Phase 2 Headless Play-Through Script: The Gallery Silence
+Headless Play-Through Script: The Gallery Silence
 
 Plays through the mystery as a detective, interrogating all four NPCs with
 targeted questions to surface contradictions. Logs all responses and
