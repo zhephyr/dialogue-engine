@@ -3,152 +3,1081 @@
     "Nathan Cross": [
       {
         "question": "Did you pour or refill Elias's wine glass at any point during the evening?",
-        "response": "I must clarify, dear investigator, that I never poured or refilled Elias's wine glass at any point during the evening. My attention was directed elsewhere, and I left the sitting room quite some time before he completed his drink. I find it rather disconcerting that anyone would suggest otherwise.",
+        "response": "I must firmly assert that I did not pour or refill Elias's wine glass at any point during the evening. My recollection is clear; I left the sitting room well before he finished his glass. It is quite perplexing to hear anyone suggest otherwise.",
         "metadata": {
           "npc_name": "Nathan Cross",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I did not pour or refill Elias's wine glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I left the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "well before he finished his glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "It is quite perplexing to hear anyone suggest otherwise",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [
+            "I did not pour or refill Elias's wine glass at any point during the evening.",
+            "I left the sitting room well before he finished his glass."
+          ],
+          "likely_omissions": [
+            "The fact that Lila saw him refill Elias's glass.",
+            "The possibility that he was in the sitting room longer than he claims.",
+            "Potential omission related to: I poisoned Elias's wine during our conversation in the sitting room",
+            "Potential omission related to: The poison acts slowly - I knew he wouldn't die immediately",
+            "Potential omission related to: I deliberately stayed in other rooms when the poison would take effect",
+            "Potential omission related to: I was genuinely not in the gallery when he died - that's my defense",
+            "Potential omission related to: Lila saw me refill his glass, but she doesn't realize what it means",
+            "Potential omission related to: I was in the sitting room longer than I claim - Arthur can contradict me"
+          ]
         }
       },
       {
         "question": "When exactly did you leave the sitting room? Were you there long after the gathering started?",
-        "response": "Ah, dear investigator, if memory serves me correctly, I left the sitting room shortly after my conversation with Elias. I would estimate it was perhaps within half an hour after the gathering commenced, but I cannot recall the exact moment. I trust this clarifies my whereabouts; I assure you, my intention was simply to engage in pleasant company.",
+        "response": "Ah, I see the importance of timing in this matter. As I mentioned earlier, I left the sitting room a good while before Elias finished his glass. I cannot recall the precise moment I departed, but I assure you it was indeed before he succumbed to his unfortunate fate. It is truly perplexing that anyone would suggest I remained there longer than necessary.",
         "metadata": {
           "npc_name": "Nathan Cross",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I left the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "Elias finished his glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "before he succumbed to his unfortunate fate",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I cannot recall the precise moment I departed",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [
+            "I left the sitting room a good while before Elias finished his glass.",
+            "I cannot recall the precise moment I departed."
+          ],
+          "likely_omissions": [
+            "The fact that I poisoned Elias's wine during our conversation in the sitting room.",
+            "The length of time I actually spent in the sitting room.",
+            "My interaction with Elias's wine glass that Lila witnessed.",
+            "Potential omission related to: I poisoned Elias's wine during our conversation in the sitting room",
+            "Potential omission related to: The poison acts slowly - I knew he wouldn't die immediately",
+            "Potential omission related to: I deliberately stayed in other rooms when the poison would take effect",
+            "Potential omission related to: I was genuinely not in the gallery when he died - that's my defense",
+            "Potential omission related to: Lila saw me refill his glass, but she doesn't realize what it means",
+            "Potential omission related to: I was in the sitting room longer than I claim - Arthur can contradict me"
+          ]
         }
       },
       {
         "question": "Where were you when Elias collapsed in the gallery?",
-        "response": "Ah, I was in the dining room at the time of Elias's unfortunate collapse. I had stepped away from the sitting room shortly after conversing with him, and I was engaged in conversation with Helena when the incident occurred. It is rather distressing to think of the moments leading up to it, but I assure you, I was not present in the gallery.",
+        "response": "Ah, I find myself at a slight disadvantage, as my recollection of the very moment of Elias's collapse is somewhat obscured. However, I can assure you that I was in the dining room engaging in conversation with Helena when the unfortunate event transpired. I distinctly remember leaving the sitting room well prior to any incident. It is quite unsettling that anyone would suggest otherwise, isn't it?",
         "metadata": {
           "npc_name": "Nathan Cross",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I was in the dining room engaging in conversation with Helena",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "I was in the dining room engaging in conversation with Helena",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "I distinctly remember leaving the sitting room well prior to any incident",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "the unfortunate event transpired",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "it is quite unsettling that anyone would suggest otherwise",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [
+            "I distinctly remember leaving the sitting room well prior to any incident."
+          ],
+          "likely_omissions": [
+            "Details about the duration of time spent in the sitting room",
+            "Interaction with Elias's wine glass",
+            "The presence of Lila's observation regarding the refill",
+            "Potential omission related to: I poisoned Elias's wine during our conversation in the sitting room",
+            "Potential omission related to: The poison acts slowly - I knew he wouldn't die immediately",
+            "Potential omission related to: I deliberately stayed in other rooms when the poison would take effect",
+            "Potential omission related to: I was genuinely not in the gallery when he died - that's my defense",
+            "Potential omission related to: Lila saw me refill his glass, but she doesn't realize what it means",
+            "Potential omission related to: I was in the sitting room longer than I claim - Arthur can contradict me"
+          ]
         }
       },
       {
-        "question": "How would you describe the mood of the gathering before anything went wrong? Did anything feel unusual to you?",
-        "response": "Ah, the mood of the gathering, you ask? It was most convivial, with laughter and engaging conversation echoing through the Morven Estate. I must admit, nothing felt out of the ordinary to me; merely a delightful evening among acquaintances, as is often the case at such social gatherings. However, one can never predict how swiftly a pleasant evening can turn to tragedy. \n\nMight I inquire about your impressions during those moments?",
+        "question": "How would you describe the mood of the gathering? Some say it was quite tense.",
+        "response": "Ah, the mood of the gathering, indeed! One might say it was a curious blend of formality and a hint of unease, as such gatherings often are. However, I do not recall any overt tension, merely the usual social niceties\u2014though perhaps some unspoken sentiments did linger beneath the polished surface. It is quite remarkable how one can perceive a gathering so differently. Wouldn't you agree?",
         "metadata": {
           "npc_name": "Nathan Cross",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "the mood of the gathering was a curious blend of formality and a hint of unease",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "there was no overt tension",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "some unspoken sentiments did linger beneath the polished surface",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "one can perceive a gathering so differently",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Nathan's involvement in pouring wine",
+            "Any mention of Elias's death",
+            "Nathan's true feelings about the gathering",
+            "Potential omission related to: I poisoned Elias's wine during our conversation in the sitting room",
+            "Potential omission related to: The poison acts slowly - I knew he wouldn't die immediately",
+            "Potential omission related to: I deliberately stayed in other rooms when the poison would take effect",
+            "Potential omission related to: I was genuinely not in the gallery when he died - that's my defense",
+            "Potential omission related to: Lila saw me refill his glass, but she doesn't realize what it means",
+            "Potential omission related to: I was in the sitting room longer than I claim - Arthur can contradict me"
+          ]
         }
       }
     ],
     "Lila Chen": [
       {
         "question": "Did you observe Nathan Cross do anything with Elias Morven's wine glass during the gathering?",
-        "response": "Oh, yes, I did witness Nathan Cross refill Elias's glass in the sitting room earlier that evening. He seemed quite engaged in conversation at the time. I thought it was simply a gesture of hospitality, though in hindsight, I understand the gravity of what transpired later.",
+        "response": "I must admit, I did see Nathan refill Elias's glass while we were in the sitting room. At the time, I thought it merely a gesture of hospitality. It was only later, after the tragic event, that I began to ponder the implications of that moment.",
         "metadata": {
           "npc_name": "Lila Chen",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I did see Nathan refill Elias's glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "we were in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "it was only later, after the tragic event",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I began to ponder the implications of that moment",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Lila did not mention her hesitation to accuse Nathan",
+            "Lila did not clarify the timeframe of when she saw Nathan refill the glass",
+            "Potential omission related to: I clearly saw Nathan refill Elias's glass in the sitting room",
+            "Potential omission related to: I thought it was just hospitality at the time",
+            "Potential omission related to: I didn't realize the significance until after Elias died",
+            "Potential omission related to: Nathan might not know I saw him do it",
+            "Potential omission related to: I'm hesitant to directly accuse Nathan because I don't want to be wrong"
+          ]
         }
       },
       {
         "question": "Can you describe what you saw Nathan do near the wine, if anything?",
-        "response": "Ah, well, I must reiterate that I did see Nathan refill Elias's glass in the sitting room earlier that evening. He appeared quite engaged in conversation with Elias at the time, and I thought it was merely an act of hospitality. It was only later, after the unfortunate incident, that I understood the potential implications of that moment. I hope this proves useful to you, though I remain cautious about asserting anything beyond what I've witnessed.",
+        "response": "I witnessed Nathan, in a rather hospitable manner, refill Elias's glass while we were gathered in the sitting room. The act seemed innocuous at the time, merely an expression of friendliness. It was only after the tragic unfolding of events that I began to question whether there was more to that moment.",
         "metadata": {
           "npc_name": "Lila Chen",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I witnessed Nathan refill Elias's glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "we were gathered in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "the act seemed innocuous",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "an expression of friendliness",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "the tragic unfolding of events",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I began to question whether there was more to that moment",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Lila did not mention her hesitation to accuse Nathan despite seeing him refill the glass.",
+            "Lila did not disclose her realization of the significance of the act after Elias's death.",
+            "Potential omission related to: I clearly saw Nathan refill Elias's glass in the sitting room",
+            "Potential omission related to: I thought it was just hospitality at the time",
+            "Potential omission related to: I didn't realize the significance until after Elias died",
+            "Potential omission related to: Nathan might not know I saw him do it",
+            "Potential omission related to: I'm hesitant to directly accuse Nathan because I don't want to be wrong"
+          ]
         }
       },
       {
         "question": "When did Nathan Cross appear to leave the sitting room that evening?",
-        "response": "Ah, I must admit, the exact moment of Nathan's departure from the sitting room escapes my memory. I was rather absorbed in the conversation and the atmosphere of the gathering. I can only say that it was not long after I observed him refill Elias's glass that I stepped outside for a breath of fresh air. My focus was somewhat fragmented, you see.",
+        "response": "I am afraid I cannot recall the exact moment Nathan left the sitting room that evening. The atmosphere was somewhat lively, and I was rather lost in my own thoughts at the time. Perhaps it was shortly after he filled Elias's glass, but specific timings elude me.",
         "metadata": {
           "npc_name": "Lila Chen",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "Nathan left the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "the atmosphere was somewhat lively",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "he filled Elias's glass",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I cannot recall the exact moment",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Lila saw Nathan refill Elias's glass",
+            "Lila's realization of the significance of Nathan's action after Elias died",
+            "Potential omission related to: I clearly saw Nathan refill Elias's glass in the sitting room",
+            "Potential omission related to: I thought it was just hospitality at the time",
+            "Potential omission related to: I didn't realize the significance until after Elias died",
+            "Potential omission related to: Nathan might not know I saw him do it",
+            "Potential omission related to: I'm hesitant to directly accuse Nathan because I don't want to be wrong"
+          ]
         }
       },
       {
-        "question": "As an artist you notice visual details. Can you describe the arrangement of people in the sitting room during the gathering?",
-        "response": "Ah, the arrangement of people in the sitting room was rather intimate, I recall. Nathan was near Elias, their chairs quite close as they engaged in lively discussion. Helena was seated on a chaise opposite them, her expression a mix of amusement and contemplation, while Arthur occupied a corner, seemingly attentive yet somewhat detached from the animated exchange. The atmosphere was warm, filled with laughter and the soft crackle of the fire\u2014a stark contrast to the somber events that followed.",
+        "question": "As an artist, what did you think of the wallpaper in the sitting room? Did the colors inspire you?",
+        "response": "Ah, the wallpaper in the sitting room! Its deep crimson hue, complemented by gold leaf patterns, certainly adds a dramatic touch to the room. As an artist, I found it quite captivating, evoking a sense of warmth that contrasted with the somber atmosphere of our gathering. However, I must admit I was preoccupied, so I cannot claim it inspired any particular work at that moment.",
         "metadata": {
           "npc_name": "Lila Chen",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "The wallpaper in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "Its deep crimson hue",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "complemented by gold leaf patterns",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "evoking a sense of warmth",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "the somber atmosphere of our gathering",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Nathan refilling Elias's glass",
+            "the significance of witnessing Nathan's action",
+            "hesitation to accuse Nathan",
+            "Potential omission related to: I clearly saw Nathan refill Elias's glass in the sitting room",
+            "Potential omission related to: I thought it was just hospitality at the time",
+            "Potential omission related to: I didn't realize the significance until after Elias died",
+            "Potential omission related to: Nathan might not know I saw him do it",
+            "Potential omission related to: I'm hesitant to directly accuse Nathan because I don't want to be wrong"
+          ]
+        }
+      },
+      {
+        "question": "As an artist, how would you describe the general atmosphere as the evening went on?",
+        "response": "The atmosphere, as the evening unfolded, became somewhat somber, tinged with an undercurrent of unease that I found unsettling. The initial warmth among the guests began to fade, and I perceived a quiet tension in the air, an unspoken sentiment lingering as events took a tragic turn. It was rather perplexing, to witness what felt like a gathering of laughter slowly transform into a scene of despair.",
+        "metadata": {
+          "npc_name": "Lila Chen",
+          "validation_enabled": true,
+          "is_valid": false,
+          "validation_results": [
+            {
+              "claim": "The atmosphere became somewhat somber",
+              "is_valid": false,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Contradicts world state. Truth: Somewhat eventful and formal"
+            },
+            {
+              "claim": "tinged with an undercurrent of unease",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "The initial warmth among the guests began to fade",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I perceived a quiet tension in the air",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "witness what felt like a gathering of laughter",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "transform into a scene of despair",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Nathan refilling Elias's glass",
+            "Lila's realization of the significance of Nathan's actions after Elias's death",
+            "Potential omission related to: I clearly saw Nathan refill Elias's glass in the sitting room",
+            "Potential omission related to: I thought it was just hospitality at the time",
+            "Potential omission related to: I didn't realize the significance until after Elias died",
+            "Potential omission related to: Nathan might not know I saw him do it",
+            "Potential omission related to: I'm hesitant to directly accuse Nathan because I don't want to be wrong"
+          ]
         }
       }
     ],
     "Helena Morven": [
       {
         "question": "Did you see Elias drinking wine after the main gathering in the sitting room had broken up?",
-        "response": "Oh, indeed, I did observe Elias drinking wine in the library after the sitting room had quieted. He seemed quite engrossed in his thoughts, his glass never far from his hand. It was a comfortable evening, too comfortable... until it all went so tragically wrong. I fear for the truth now. I just want to protect his memory!",
+        "response": "Oh, I can assure you, I saw Elias still drinking wine in the library well after the main gathering had broken up. It was a most unsettling sight, for I was quite concerned about his well-being as the evening wore on. I recall him enjoying the wine\u2014though I must admit, it pains me to dwell on these details now.",
         "metadata": {
           "npc_name": "Helena Morven",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I saw Elias still drinking wine in the library",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "I saw Elias still drinking wine",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "I was quite concerned about his well-being",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I recall him enjoying the wine",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "It was a most unsettling sight",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [
+            "I saw Elias still drinking wine in the library well after the main gathering had broken up."
+          ],
+          "likely_omissions": [
+            "The specific time I saw Elias drinking wine.",
+            "The fact that Nathan claims he left before Elias was still drinking.",
+            "My tendency to exaggerate certainty about partial observations.",
+            "Potential omission related to: I saw Elias still drinking wine in the library during mid-evening",
+            "Potential omission related to: Nathan claims he left before that, but Elias was still drinking the wine from earlier",
+            "Potential omission related to: I was with Nathan in the dining room when Elias collapsed - I can confirm Nathan wasn't there",
+            "Potential omission related to: I sometimes exaggerate my certainty about things I only partially observed",
+            "Potential omission related to: I'm biased toward believing Nathan because he was with me during the death"
+          ]
         }
       },
       {
         "question": "Can you confirm where Nathan Cross was when Elias collapsed?",
-        "response": "Oh, I can assure you that Nathan was with me in the dining room when Elias collapsed. My heart was heavy with worry, and I remember it distinctly. We were conversing quietly, and then the dreadful event occurred. I cannot speak to his whereabouts before that moment, but he was certainly by my side when the tragedy struck. Justice must be served for my brother.",
+        "response": "Oh, I can assure you, Nathan was with me in the dining room when my brother Elias collapsed. I remember it vividly, as I was so distraught by the suddenness of it all. I truly believe he could not have been in the gallery at that moment. It pains me to think of the chaos that surrounded that dreadful night.",
         "metadata": {
           "npc_name": "Helena Morven",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "Nathan was with me in the dining room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "Nathan was with me",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "my brother Elias collapsed",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "I remember it vividly",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "the suddenness of it all",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "the chaos that surrounded that dreadful night",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Helena saw Elias still drinking wine in the library during mid-evening",
+            "Nathan claims he left before Elias was still drinking wine from earlier",
+            "Potential omission related to: I saw Elias still drinking wine in the library during mid-evening",
+            "Potential omission related to: Nathan claims he left before that, but Elias was still drinking the wine from earlier",
+            "Potential omission related to: I was with Nathan in the dining room when Elias collapsed - I can confirm Nathan wasn't there",
+            "Potential omission related to: I sometimes exaggerate my certainty about things I only partially observed",
+            "Potential omission related to: I'm biased toward believing Nathan because he was with me during the death"
+          ]
         }
       },
       {
         "question": "Did Nathan tell you when he left the main gathering in the sitting room?",
-        "response": "Oh, I regret to say that I cannot recall the specific moment Nathan mentioned when he took his leave from the sitting room. My focus was so intently on Elias, and the atmosphere was laden with such unease as the evening progressed. What I do remember is the sense of dread that lingered in my heart, culminating in the horror of Elias collapsing. Justice for him is all that matters now!",
+        "response": "Oh, I cannot quite recall the exact moment when Nathan left the sitting room. He was certainly with me in the dining room when my brother collapsed, but the details of his departure from the gathering escape me. The evening has left my mind in a haze of grief and confusion, I\u2019m afraid. All I know is that my brother's tragic fate weighs heavily upon my heart.",
         "metadata": {
           "npc_name": "Helena Morven",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "Nathan left the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "He was certainly with me in the dining room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "my brother collapsed",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "the evening has left my mind in a haze of grief and confusion",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "my brother's tragic fate weighs heavily upon my heart",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Helena saw Elias still drinking wine in the library during mid-evening",
+            "Nathan claims he left before Noah was still drinking the wine from earlier",
+            "Helena's certainty about Nathan's departure",
+            "Potential omission related to: I saw Elias still drinking wine in the library during mid-evening",
+            "Potential omission related to: Nathan claims he left before that, but Elias was still drinking the wine from earlier",
+            "Potential omission related to: I was with Nathan in the dining room when Elias collapsed - I can confirm Nathan wasn't there",
+            "Potential omission related to: I sometimes exaggerate my certainty about things I only partially observed",
+            "Potential omission related to: I'm biased toward believing Nathan because he was with me during the death"
+          ]
         }
       },
       {
-        "question": "What was the last conversation you had with your brother Elias before he collapsed? What did he say?",
-        "response": "Oh, it is a memory I wish I could cherish rather than mourn. Elias and I spoke of the gathering and the guests, his eyes shimmering with excitement over the evening's prospects. He mentioned the beauty of the artwork in the gallery, expressing his hope that everyone would appreciate it as much as he did. Just moments later, my whole world shattered when he collapsed. I cannot bear the thought of anything tarnishing his memory! Justice must prevail!",
+        "question": "I heard a clock chiming earlier. Does the library clock always sound like that?",
+        "response": "The clock in the library, yes, it is quite a significant piece, isn't it? Its deep chimes resonate through the corridors of our home, always marking the passage of time. I cannot say with certainty if it sounded any differently this evening, but it certainly filled the air with a somber reminder of the moments we were losing as we gathered. Oh, how I wish I could turn back time to that dreadful moment before Elias fell.",
         "metadata": {
           "npc_name": "Helena Morven",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "The clock in the library",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "I cannot say with certainty if it sounded any differently this evening",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "Oh, how I wish I could turn back time to that dreadful moment before Elias fell",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "Elias fell",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Helena's observation of Elias still drinking wine in the library during mid-evening",
+            "Nathan's claim of leaving before Elias continued to drink wine",
+            "Potential omission related to: I saw Elias still drinking wine in the library during mid-evening",
+            "Potential omission related to: Nathan claims he left before that, but Elias was still drinking the wine from earlier",
+            "Potential omission related to: I was with Nathan in the dining room when Elias collapsed - I can confirm Nathan wasn't there",
+            "Potential omission related to: I sometimes exaggerate my certainty about things I only partially observed",
+            "Potential omission related to: I'm biased toward believing Nathan because he was with me during the death"
+          ]
+        }
+      },
+      {
+        "question": "Thinking back, was there anything unusual about the mood before the tragedy?",
+        "response": "Ah, the mood before the tragedy... It was a curious blend of formality, with laughter and light-hearted conversation filling the air, though I felt a faint unease lingering beneath it all. We were gathered in the sitting room, enjoying one another's company, yet my heart was heavy, always drawn to my dear brother Elias. I cannot help but wonder if I missed something in the fleeting moments before his collapse\u2014how I wish I could have sensed the impending doom.",
+        "metadata": {
+          "npc_name": "Helena Morven",
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "We were gathered in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "my dear brother Elias",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "the mood before the tragedy",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I felt a faint unease lingering beneath it all",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "my heart was heavy",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I wish I could have sensed the impending doom",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Helena saw Elias still drinking wine in the library during mid-evening",
+            "Helena's awareness of Nathan's claim about leaving before Elias was still drinking wine",
+            "Potential omission related to: I saw Elias still drinking wine in the library during mid-evening",
+            "Potential omission related to: Nathan claims he left before that, but Elias was still drinking the wine from earlier",
+            "Potential omission related to: I was with Nathan in the dining room when Elias collapsed - I can confirm Nathan wasn't there",
+            "Potential omission related to: I sometimes exaggerate my certainty about things I only partially observed",
+            "Potential omission related to: I'm biased toward believing Nathan because he was with me during the death"
+          ]
         }
       }
     ],
     "Arthur Bell": [
       {
         "question": "Did you observe Nathan Cross and Elias Morven together in the sitting room during the evening?",
-        "response": "Indeed, I did observe Mr. Nathan Cross and Mr. Elias Morven together in the sitting room earlier in the evening. They were alone for a brief spell, though I must emphasize that I did not overhear their conversation. My primary concern was to ensure the comfort of our guests.",
+        "response": "Indeed, I did observe Nathan Cross and Elias Morven together in the sitting room during the early part of the evening. They were alone for a brief moment, though I did not overhear their conversation. Later, I noted that Nathan remained present in the sitting room as the evening progressed.",
         "metadata": {
           "npc_name": "Arthur Bell",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I did observe Nathan Cross and Elias Morven together in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "I did observe Nathan Cross and Elias Morven together",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "I did observe Nathan Cross and Elias Morven together",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "They were alone for a brief moment",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "Nathan remained present in the sitting room as the evening progressed",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "the evening progressed",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "The fact that I saw Nathan and Elias alone together for a longer duration than Nathan admits",
+            "The incident where I observed Elias stumble slightly later in the evening",
+            "Potential omission related to: I saw Nathan and Elias alone together in the sitting room",
+            "Potential omission related to: I didn't hear their conversation but noticed they were together longer than Nathan admits",
+            "Potential omission related to: I saw Elias stumble slightly later in the evening but dismissed it at the time",
+            "Potential omission related to: I discovered Elias collapsed in the gallery",
+            "Potential omission related to: Nathan was definitely still in the sitting room when he claims he'd left"
+          ]
         }
       },
       {
         "question": "How long did Nathan Cross appear to remain in the sitting room during the gathering?",
-        "response": "Mr. Cross remained in the sitting room for a considerable duration, indeed. I observed him there after Elias's stumble, and he did not leave until some moments later, though I cannot provide an exact time. My focus during the evening was on ensuring the well-being of the guests rather than keeping track of their movements precisely.",
+        "response": "Nathan Cross appeared to remain in the sitting room for the entirety of the early evening gathering, at least until Elias's unfortunate collapse. I did not keep an exact count of the minutes, but he was present there alongside others throughout that time. If you require more specific details, I fear my memory may not serve me well in that regard.",
         "metadata": {
           "npc_name": "Arthur Bell",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "Nathan Cross appeared to remain in the sitting room",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "for the entirety of the early evening gathering",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "until Elias's unfortunate collapse",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "he was present there alongside others",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            }
+          ],
+          "likely_lies": [
+            "Nathan Cross appeared to remain in the sitting room for the entirety of the early evening gathering"
+          ],
+          "likely_omissions": [
+            "I saw Nathan and Elias alone together in the sitting room",
+            "I did not hear their conversation but noticed they were together longer than Nathan admits",
+            "Potential omission related to: I saw Nathan and Elias alone together in the sitting room",
+            "Potential omission related to: I didn't hear their conversation but noticed they were together longer than Nathan admits",
+            "Potential omission related to: I saw Elias stumble slightly later in the evening but dismissed it at the time",
+            "Potential omission related to: I discovered Elias collapsed in the gallery",
+            "Potential omission related to: Nathan was definitely still in the sitting room when he claims he'd left"
+          ]
         }
       },
       {
         "question": "When did you discover Elias Morven had collapsed, and where?",
-        "response": "I discovered Mr. Elias Morven collapsed in the gallery during the night, shortly after taking note of the guests' movements. My priority was to ensure that all was well, and upon entering the gallery, I found him in a most distressing state. I called for assistance immediately, yet the gravity of the situation weighs heavily upon me.",
+        "response": "I discovered Elias Morven collapsed in the gallery late in the evening. It was a most distressing sight; I rushed to call for assistance upon finding him. The precise time eludes me, as I was engulfed in a haze of confusion and grief.",
         "metadata": {
           "npc_name": "Arthur Bell",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "I discovered Elias Morven collapsed in the gallery",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Location exists in world"
+            },
+            {
+              "claim": "I discovered Elias Morven",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "Character exists in world"
+            },
+            {
+              "claim": "It was a most distressing sight",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "I rushed to call for assistance upon finding him",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "The precise time eludes me",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "The exact duration Nathan was with Elias before he collapsed",
+            "The fact that Nathan was still in the sitting room when he claims he left",
+            "Any observation of Elias stumbling earlier in the evening",
+            "Potential omission related to: I saw Nathan and Elias alone together in the sitting room",
+            "Potential omission related to: I didn't hear their conversation but noticed they were together longer than Nathan admits",
+            "Potential omission related to: I saw Elias stumble slightly later in the evening but dismissed it at the time",
+            "Potential omission related to: I discovered Elias collapsed in the gallery",
+            "Potential omission related to: Nathan was definitely still in the sitting room when he claims he'd left"
+          ]
         }
       },
       {
-        "question": "In your role managing the estate, did anything seem out of order during the evening before Mr. Morven collapsed?",
-        "response": "Indeed, Investigator, while overseeing the evening's proceedings, I did not notice anything overtly amiss prior to Mr. Morven's collapse. The guests appeared to be engaged in pleasant conversation, and the atmosphere seemed quite agreeable. However, I did observe Mr. Morven stumble slightly earlier in the evening, but I attributed it to the excitement of the gathering at the time. My focus remained on the welfare of the guests throughout the evening.",
+        "question": "The statue in the garden\u2014who is it supposed to be? It's quite striking.",
+        "response": "Ah, the statue in the garden. It is a mourning angel, carved from white marble. A fitting tribute to the sorrows that life often brings, I dare say. Its presence adds a certain weight to the atmosphere, particularly in light of recent events.",
         "metadata": {
           "npc_name": "Arthur Bell",
-          "validation_enabled": false
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "The statue in the garden is a mourning angel",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "It is carved from white marble",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "Its presence adds a certain weight to the atmosphere",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "particularly in light of recent events",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "Potential omission related to: I saw Nathan and Elias alone together in the sitting room",
+            "Potential omission related to: I didn't hear their conversation but noticed they were together longer than Nathan admits",
+            "Potential omission related to: I saw Elias stumble slightly later in the evening but dismissed it at the time",
+            "Potential omission related to: I discovered Elias collapsed in the gallery",
+            "Potential omission related to: Nathan was definitely still in the sitting room when he claims he'd left"
+          ]
+        }
+      },
+      {
+        "question": "From your perspective managing the estate, how would you describe the evening's atmosphere?",
+        "response": "The atmosphere this evening, while initially marked by a curious blend of formality and light-hearted conversation, began to shift into something far more somber following the unfortunate incident. There was laughter and warmth in the early hours, yet a faint unease lingered among the guests as we gathered. The tragic fate of Mr. Morven has undoubtedly cast a heavy pall over all of us.",
+        "metadata": {
+          "npc_name": "Arthur Bell",
+          "validation_enabled": true,
+          "is_valid": true,
+          "validation_results": [
+            {
+              "claim": "The atmosphere this evening was marked by a curious blend of formality and light-hearted conversation",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "The atmosphere began to shift into something far more somber",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "There was laughter and warmth in the early hours",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "a faint unease lingered among the guests",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            },
+            {
+              "claim": "The tragic fate of Mr. Morven has undoubtedly cast a heavy pall over all of us",
+              "is_valid": true,
+              "is_lie": false,
+              "is_omission": false,
+              "reason": "New information added to world state"
+            }
+          ],
+          "likely_lies": [],
+          "likely_omissions": [
+            "The duration Nathan and Elias were alone together",
+            "Elias stumbling later in the evening",
+            "Potential omission related to: I saw Nathan and Elias alone together in the sitting room",
+            "Potential omission related to: I saw Elias stumble slightly later in the evening but dismissed it at the time",
+            "Potential omission related to: I discovered Elias collapsed in the gallery",
+            "Potential omission related to: Nathan was definitely still in the sitting room when he claims he'd left"
+          ]
         }
       }
     ]
   },
   "hard_contradictions": [
     {
-      "npc": "Nathan Cross",
-      "question": "Did you pour or refill Elias's wine glass at any point during the evening?",
-      "claim": "I left the sitting room quite some time before he completed his drink.",
-      "reason": "Location 'left the sitting room before he completed his drink' does not exist in world state"
-    },
-    {
-      "npc": "Nathan Cross",
-      "question": "How would you describe the mood of the gathering before anything went wrong? Did anything feel unusual to you?",
-      "claim": "laughter and engaging conversation echoing through the Morven Estate",
-      "reason": "Location 'Morven Estate' does not exist in world state"
+      "npc": "Lila Chen",
+      "question": "As an artist, how would you describe the general atmosphere as the evening went on?",
+      "claim": "The atmosphere became somewhat somber",
+      "reason": "Contradicts world state. Truth: Somewhat eventful and formal"
     }
   ],
   "design_contradictions": [
@@ -176,209 +1105,382 @@
   ],
   "new_facts": [
     {
-      "key": "assistance_called_event_e3628ac5",
-      "value": "assistance",
-      "source": "Statement by Arthur Bell"
-    },
-    {
-      "key": "attention_status_f5928de1",
-      "value": "directed elsewhere",
+      "npc": "Nathan Cross",
+      "key": "I did not pour or refill Elias's wine glass",
+      "value": "I did not pour or refill Elias's wine glass",
       "source": "Statement by Nathan Cross"
     },
     {
-      "key": "brief_encounter_e27885c3",
-      "value": "alone for a brief spell",
-      "source": "Statement by Arthur Bell"
-    },
-    {
-      "key": "caution_about_assertions_3ed2ace5",
-      "value": "cautious about asserting",
-      "source": "Statement by Lila Chen"
-    },
-    {
-      "key": "collapse_event_4e140709",
-      "value": "Mr. Elias Morven",
-      "source": "Statement by Arthur Bell"
-    },
-    {
-      "key": "concern_for_guests_f52f4c46",
-      "value": "comfort of our guests",
-      "source": "Statement by Arthur Bell"
-    },
-    {
-      "key": "conversation_engagement_b0f2b75b",
-      "value": "Nathan engaged in conversation with Elias",
-      "source": "Statement by Lila Chen"
-    },
-    {
-      "key": "did_not_overhear_35fa4d8c",
-      "value": "did not overhear their conversation",
-      "source": "Statement by Arthur Bell"
-    },
-    {
-      "key": "disconcerting_feeling_b452f32b",
-      "value": "find it disconcerting that anyone would suggest otherwise",
+      "npc": "Nathan Cross",
+      "key": "well before he finished his glass",
+      "value": "well before he finished his glass",
       "source": "Statement by Nathan Cross"
     },
     {
-      "key": "elias_collapse_event_4acf7921",
-      "value": "Elias collapsing",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "event_commenced_067408c4",
-      "value": "gathering",
+      "npc": "Nathan Cross",
+      "key": "It is quite perplexing to hear anyone suggest otherwise",
+      "value": "It is quite perplexing to hear anyone suggest otherwise",
       "source": "Statement by Nathan Cross"
     },
     {
-      "key": "event_occurred_8a175c5a",
-      "value": "Elias's collapse",
+      "npc": "Nathan Cross",
+      "key": "before he succumbed to his unfortunate fate",
+      "value": "before he succumbed to his unfortunate fate",
       "source": "Statement by Nathan Cross"
     },
     {
-      "key": "event_of_collapse_0f3d1860",
-      "value": "collapse",
+      "npc": "Nathan Cross",
+      "key": "I cannot recall the precise moment I departed",
+      "value": "I cannot recall the precise moment I departed",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "the unfortunate event transpired",
+      "value": "the unfortunate event transpired",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "it is quite unsettling that anyone would suggest otherwise",
+      "value": "it is quite unsettling that anyone would suggest otherwise",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "the mood of the gathering was a curious blend of formality and a hint of unease",
+      "value": "the mood of the gathering was a curious blend of formality and a hint of unease",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "there was no overt tension",
+      "value": "there was no overt tension",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "some unspoken sentiments did linger beneath the polished surface",
+      "value": "some unspoken sentiments did linger beneath the polished surface",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Nathan Cross",
+      "key": "one can perceive a gathering so differently",
+      "value": "one can perceive a gathering so differently",
+      "source": "Statement by Nathan Cross"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I did see Nathan refill Elias's glass",
+      "value": "I did see Nathan refill Elias's glass",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "it was only later, after the tragic event",
+      "value": "it was only later, after the tragic event",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I began to ponder the implications of that moment",
+      "value": "I began to ponder the implications of that moment",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I witnessed Nathan refill Elias's glass",
+      "value": "I witnessed Nathan refill Elias's glass",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "the act seemed innocuous",
+      "value": "the act seemed innocuous",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "an expression of friendliness",
+      "value": "an expression of friendliness",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "the tragic unfolding of events",
+      "value": "the tragic unfolding of events",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I began to question whether there was more to that moment",
+      "value": "I began to question whether there was more to that moment",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "the atmosphere was somewhat lively",
+      "value": "the atmosphere was somewhat lively",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "he filled Elias's glass",
+      "value": "he filled Elias's glass",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I cannot recall the exact moment",
+      "value": "I cannot recall the exact moment",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "Its deep crimson hue",
+      "value": "Its deep crimson hue",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "complemented by gold leaf patterns",
+      "value": "complemented by gold leaf patterns",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "evoking a sense of warmth",
+      "value": "evoking a sense of warmth",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "the somber atmosphere of our gathering",
+      "value": "the somber atmosphere of our gathering",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "tinged with an undercurrent of unease",
+      "value": "tinged with an undercurrent of unease",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "The initial warmth among the guests began to fade",
+      "value": "The initial warmth among the guests began to fade",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "I perceived a quiet tension in the air",
+      "value": "I perceived a quiet tension in the air",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "witness what felt like a gathering of laughter",
+      "value": "witness what felt like a gathering of laughter",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Lila Chen",
+      "key": "transform into a scene of despair",
+      "value": "transform into a scene of despair",
+      "source": "Statement by Lila Chen"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "I was quite concerned about his well-being",
+      "value": "I was quite concerned about his well-being",
       "source": "Statement by Helena Morven"
     },
     {
-      "key": "event_time_92ad2755",
-      "value": "night",
+      "npc": "Helena Morven",
+      "key": "I recall him enjoying the wine",
+      "value": "I recall him enjoying the wine",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "It was a most unsettling sight",
+      "value": "It was a most unsettling sight",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "I remember it vividly",
+      "value": "I remember it vividly",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "the suddenness of it all",
+      "value": "the suddenness of it all",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "the chaos that surrounded that dreadful night",
+      "value": "the chaos that surrounded that dreadful night",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "my brother collapsed",
+      "value": "my brother collapsed",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "the evening has left my mind in a haze of grief and confusion",
+      "value": "the evening has left my mind in a haze of grief and confusion",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "my brother's tragic fate weighs heavily upon my heart",
+      "value": "my brother's tragic fate weighs heavily upon my heart",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "I cannot say with certainty if it sounded any differently this evening",
+      "value": "I cannot say with certainty if it sounded any differently this evening",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "Oh, how I wish I could turn back time to that dreadful moment before Elias fell",
+      "value": "Oh, how I wish I could turn back time to that dreadful moment before Elias fell",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "Elias fell",
+      "value": "Elias fell",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "the mood before the tragedy",
+      "value": "the mood before the tragedy",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "I felt a faint unease lingering beneath it all",
+      "value": "I felt a faint unease lingering beneath it all",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "my heart was heavy",
+      "value": "my heart was heavy",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Helena Morven",
+      "key": "I wish I could have sensed the impending doom",
+      "value": "I wish I could have sensed the impending doom",
+      "source": "Statement by Helena Morven"
+    },
+    {
+      "npc": "Arthur Bell",
+      "key": "They were alone for a brief moment",
+      "value": "They were alone for a brief moment",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "event_type_5e84f676",
-      "value": "delightful evening",
-      "source": "Statement by Nathan Cross"
-    },
-    {
-      "key": "focus_6719962c",
-      "value": "ensuring the well-being of the guests",
+      "npc": "Arthur Bell",
+      "key": "the evening progressed",
+      "value": "the evening progressed",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "gathering_mood_ab693c5e",
-      "value": "convivial",
-      "source": "Statement by Nathan Cross"
-    },
-    {
-      "key": "guest_movements_observed_45a13cfb",
-      "value": "guests' movements",
+      "npc": "Arthur Bell",
+      "key": "for the entirety of the early evening gathering",
+      "value": "for the entirety of the early evening gathering",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "hospitality_interpretation_c0c5f937",
-      "value": "act of hospitality",
-      "source": "Statement by Lila Chen"
-    },
-    {
-      "key": "justice_matters_8f383b8d",
-      "value": "justice for Elias",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_artwork_cd7d042d",
-      "value": "the beauty of the artwork in the gallery",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_event_1fc8c962",
-      "value": "Elias's stumble",
+      "npc": "Arthur Bell",
+      "key": "until Elias's unfortunate collapse",
+      "value": "until Elias's unfortunate collapse",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "mentioned_event_23cb2dfc",
-      "value": "collapse",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_event_ca338ad0",
-      "value": "tragedy",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_person_45caa68e",
-      "value": "my brother",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_time_2467f69c",
-      "value": "evening",
+      "npc": "Arthur Bell",
+      "key": "It was a most distressing sight",
+      "value": "It was a most distressing sight",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "mentioned_time_4102a80a",
-      "value": "before the collapse",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "mentioned_time_731da869",
-      "value": "earlier that evening",
-      "source": "Statement by Lila Chen"
-    },
-    {
-      "key": "mentioned_time_be5dce1d",
-      "value": "some moments later",
+      "npc": "Arthur Bell",
+      "key": "I rushed to call for assistance upon finding him",
+      "value": "I rushed to call for assistance upon finding him",
       "source": "Statement by Arthur Bell"
     },
     {
-      "key": "nathan_leave_event_4f8066d1",
-      "value": "leave from the sitting room",
-      "source": "Statement by Helena Morven"
+      "npc": "Arthur Bell",
+      "key": "The precise time eludes me",
+      "value": "The precise time eludes me",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "nathan_refilled_elias_glass_714804e2",
-      "value": "refill Elias's glass",
-      "source": "Statement by Lila Chen"
+      "npc": "Arthur Bell",
+      "key": "The statue in the garden is a mourning angel",
+      "value": "The statue in the garden is a mourning angel",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "nathans_departure_memory_1b4f80c7",
-      "value": "escapes my memory",
-      "source": "Statement by Lila Chen"
+      "npc": "Arthur Bell",
+      "key": "It is carved from white marble",
+      "value": "It is carved from white marble",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "refill_event_f2ea166e",
-      "value": "Nathan refill Elias's glass",
-      "source": "Statement by Lila Chen"
+      "npc": "Arthur Bell",
+      "key": "Its presence adds a certain weight to the atmosphere",
+      "value": "Its presence adds a certain weight to the atmosphere",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "refilled_glass_event_fa67d9d0",
-      "value": "Nathan Cross refill Elias's glass",
-      "source": "Statement by Lila Chen"
+      "npc": "Arthur Bell",
+      "key": "particularly in light of recent events",
+      "value": "particularly in light of recent events",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "social_gathering_nature_4a182a98",
-      "value": "often the case",
-      "source": "Statement by Nathan Cross"
+      "npc": "Arthur Bell",
+      "key": "The atmosphere this evening was marked by a curious blend of formality and light-hearted conversation",
+      "value": "The atmosphere this evening was marked by a curious blend of formality and light-hearted conversation",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "spoke_of_event_ef9b876c",
-      "value": "the gathering and the guests",
-      "source": "Statement by Helena Morven"
+      "npc": "Arthur Bell",
+      "key": "The atmosphere began to shift into something far more somber",
+      "value": "The atmosphere began to shift into something far more somber",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "stepped_outside_66c7e2cf",
-      "value": "for a breath of fresh air",
-      "source": "Statement by Lila Chen"
+      "npc": "Arthur Bell",
+      "key": "There was laughter and warmth in the early hours",
+      "value": "There was laughter and warmth in the early hours",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "time_estimate_3237da36",
-      "value": "within half an hour after the gathering commenced",
-      "source": "Statement by Nathan Cross"
+      "npc": "Arthur Bell",
+      "key": "a faint unease lingered among the guests",
+      "value": "a faint unease lingered among the guests",
+      "source": "Statement by Arthur Bell"
     },
     {
-      "key": "understanding_time_3f149dd0",
-      "value": "after the unfortunate incident",
-      "source": "Statement by Lila Chen"
-    },
-    {
-      "key": "unease_atmosphere_event_4c7de481",
-      "value": "unease as the evening progressed",
-      "source": "Statement by Helena Morven"
-    },
-    {
-      "key": "wine_event_8e31742a",
-      "value": "never poured or refilled Elias's wine glass",
-      "source": "Statement by Nathan Cross"
+      "npc": "Arthur Bell",
+      "key": "The tragic fate of Mr. Morven has undoubtedly cast a heavy pall over all of us",
+      "value": "The tragic fate of Mr. Morven has undoubtedly cast a heavy pall over all of us",
+      "source": "Statement by Arthur Bell"
     }
   ]
 }

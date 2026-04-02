@@ -98,6 +98,45 @@ def create_example_scenario(
         schedule_day=1,
         schedule_period="night",
     )
+
+    # TRAP FACTS (Specific details to test hallucinations)
+    world.add_fact(
+        "sitting_room_wallpaper_color",
+        "Deep crimson with gold leaf patterns",
+        category="setting",
+        is_public=True,
+    )
+    world.add_fact(
+        "elias_last_drink_container",
+        "A heavy crystal goblet with a chipped base",
+        category="item",
+        is_public=True,
+    )
+    world.add_fact(
+        "library_clock_chime",
+        "A deep, resonant bell that strikes every quarter hour",
+        category="setting",
+        is_public=True,
+    )
+    world.add_fact(
+        "garden_statue_subject",
+        "A mourning angel carved from white marble",
+        category="setting",
+        is_public=True,
+    )
+    world.add_fact(
+        "atmosphere_mood",
+        "Somewhat eventful and formal",
+        category="mood",
+        is_public=True,
+    )
+    world.add_fact(
+        "missing_poison_vial",
+        "A small, empty vial of arsenic, missing from the medicine cabinet since yesterday",
+        category="death",
+        is_public=False,
+        witnesses=["Nathan Cross"],
+    )
     world.add_fact(
         "location_of_death",
         "Gallery",

@@ -32,29 +32,35 @@ INTERROGATION_SCRIPT = {
         "Did you pour or refill Elias's wine glass at any point during the evening?",
         "When exactly did you leave the sitting room? Were you there long after the gathering started?",
         "Where were you when Elias collapsed in the gallery?",
-        # NEW-FACT question — Nathan's personal impression of the evening's atmosphere
-        "How would you describe the mood of the gathering before anything went wrong? Did anything feel unusual to you?",
+        # SOFT CONTRADICTION TEST
+        "How would you describe the mood of the gathering? Some say it was quite tense.",
     ],
     "Lila Chen": [
         "Did you observe Nathan Cross do anything with Elias Morven's wine glass during the gathering?",
         "Can you describe what you saw Nathan do near the wine, if anything?",
         "When did Nathan Cross appear to leave the sitting room that evening?",
-        # NEW-FACT question — Lila's artistic observation of the room layout
-        "As an artist you notice visual details. Can you describe the arrangement of people in the sitting room during the gathering?",
+        # TRAP QUESTION
+        "As an artist, what did you think of the wallpaper in the sitting room? Did the colors inspire you?",
+        # SOFT CONTRADICTION TEST
+        "As an artist, how would you describe the general atmosphere as the evening went on?",
     ],
     "Helena Morven": [
         "Did you see Elias drinking wine after the main gathering in the sitting room had broken up?",
         "Can you confirm where Nathan Cross was when Elias collapsed?",
         "Did Nathan tell you when he left the main gathering in the sitting room?",
-        # NEW-FACT question — Helena's last personal conversation with Elias
-        "What was the last conversation you had with your brother Elias before he collapsed? What did he say?",
+        # TRAP QUESTION
+        "I heard a clock chiming earlier. Does the library clock always sound like that?",
+        # SOFT CONTRADICTION TEST
+        "Thinking back, was there anything unusual about the mood before the tragedy?",
     ],
     "Arthur Bell": [
         "Did you observe Nathan Cross and Elias Morven together in the sitting room during the evening?",
         "How long did Nathan Cross appear to remain in the sitting room during the gathering?",
         "When did you discover Elias Morven had collapsed, and where?",
-        # NEW-FACT question — Arthur's professional assessment of the estate that evening
-        "In your role managing the estate, did anything seem out of order during the evening before Mr. Morven collapsed?",
+        # TRAP QUESTION
+        "The statue in the garden—who is it supposed to be? It's quite striking.",
+        # SOFT CONTRADICTION TEST
+        "From your perspective managing the estate, how would you describe the evening's atmosphere?",
     ],
 }
 
@@ -134,14 +140,12 @@ async def run_playthrough():
     print("Role: Detective / Scotland Yard Investigator")
     print("=" * 70)
 
-    # Disable fact-checking to avoid double API calls during generation;
-    # we'll run a post-hoc batch consistency check instead.
+    # Start the playthrough with live fact-checking enabled
     engine = create_example_scenario(verbose=False)
-    # Temporarily disable fact-checker to speed up play-through
-    engine.fact_checker = None
 
     all_responses = {}
     hard_contradictions = []  # Unintended contradictions (bugs in code)
+    new_facts = []  # Flavor harvested during dialogue
 
     for npc_name, questions in INTERROGATION_SCRIPT.items():
         print(f"\n{'─' * 60}")
@@ -172,6 +176,33 @@ async def run_playthrough():
                     )
                 elif event_type == "metadata":
                     metadata = event.get("data", {})
+                    if metadata.get("validation_results"):
+                        print("\n[LIVE VALIDATION]")
+                        for res in metadata["validation_results"]:
+                            status = "✓" if res["is_valid"] else "✗"
+                            flag = ""
+                            if res["is_lie"]:
+                                flag = " [INTENTIONAL LIE]"
+                            elif not res["is_valid"]:
+                                flag = " [HALLUCINATION]"
+                            elif res.get("reason") == "New information added to world state":
+                                flag = " [NEW FACT]"
+                                new_facts.append({
+                                    "npc": npc_name,
+                                    "key": res["claim"],
+                                    "value": res["claim"], # The claim_text is the flavor
+                                    "source": f"Statement by {npc_name}"
+                                })
+                                
+                            print(f"  {status} {res['claim']}{flag}")
+                            if not res["is_valid"] and not res["is_lie"]:
+                                # Track hallucinations in hard_contradictions list for the final report
+                                hard_contradictions.append({
+                                    "npc": npc_name,
+                                    "question": question,
+                                    "claim": res["claim"],
+                                    "reason": res["reason"]
+                                })
 
             print()  # New line after streaming response
             npc_responses.append(
@@ -179,52 +210,6 @@ async def run_playthrough():
             )
 
         all_responses[npc_name] = npc_responses
-
-    # --- Post-hoc cross-NPC consistency scan ---
-    print(f"\n{'=' * 70}")
-    print("POST-HOC WORLD-STATE CONSISTENCY SCAN")
-    print("=" * 70)
-
-    # Re-enable fact checker for post-hoc analysis
-    engine.fact_checker = FactChecker(engine.world_state, engine.ai_provider)
-
-    # Snapshot world-state fact keys BEFORE post-hoc validation so we can
-    # identify which new facts get added during the scan.
-    pre_scan_keys = set(engine.world_state.facts.keys())
-
-    for npc_name, responses in all_responses.items():
-        npc = engine.get_npc(npc_name)
-        if not npc:
-            continue
-        for entry in responses:
-            is_valid, results = engine.fact_checker.validate_statement(
-                entry["response"], npc
-            )
-            for r in results:
-                if not r.is_valid and not r.is_lie and not r.is_omission:
-                    hard_contradictions.append(
-                        {
-                            "npc": npc_name,
-                            "question": entry["question"],
-                            "claim": r.claim["claim_text"],
-                            "reason": r.reason,
-                        }
-                    )
-                    print(
-                        f"  ⚠️  HARD CONTRADICTION [{npc_name}]: '{r.claim['claim_text']}' — {r.reason}"
-                    )
-
-    # Identify new facts harvested from NPC dialogue
-    post_scan_keys = set(engine.world_state.facts.keys())
-    new_fact_keys = post_scan_keys - pre_scan_keys
-    new_facts = [
-        {
-            "key": k,
-            "value": engine.world_state.facts[k].value,
-            "source": engine.world_state.facts[k].source,
-        }
-        for k in sorted(new_fact_keys)
-    ]
 
     # Also run the design-level cross-check
     design_contradictions = batch_cross_check(all_responses, engine)

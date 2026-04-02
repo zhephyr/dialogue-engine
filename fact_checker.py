@@ -62,8 +62,7 @@ class FactChecker:
     def extract_claims_from_statement(self, statement: str) -> List[Claim]:
         """
         Extract factual claims from a statement.
-        Uses an AIProvider if configured (and not mock), otherwise falls back
-        to pattern matching heuristics.
+        Uses an AIProvider with fallback to pattern matching heuristics.
         """
         claims = []
 
@@ -72,13 +71,39 @@ class FactChecker:
             "MockProvider",
             "CustomMockProvider",
         ]:
-            prompt = f"""Extract standalone factual claims from this statement: "{statement}"
-Return ONLY a valid JSON list of objects. Each object should have:
-- claim_text: The exact string representing the claim
-- category: 'location', 'time', 'person', 'event', or 'other'
-- key: A simple snake_case key categorizing this fact (e.g., 'mentioned_location')
-- value: The exact target of the claim
-If no facts, return an empty list [].
+            # Inject known context to improve accuracy and categorization
+            known_locations = ", ".join(sorted(list(self.world_state.locations)))
+            known_characters = ", ".join(sorted(list(self.world_state.characters)))
+
+            prompt = f"""You are an expert at extracting factual claims from character dialogue in a Victorian mystery setting.
+Analyze the statement: "{statement}"
+
+Known Locations: [{known_locations}]
+Known Characters: [{known_characters}]
+
+Extract individual factual claims and return ONLY a JSON list of objects.
+Guidelines:
+1. 'category' must be:
+   - 'location': STRICTLY for where someone was. Value MUST be one of the known locations if it matches.
+   - 'person': STRICTLY for who was present. Value MUST be a character name from the list.
+   - 'time': For when something happened.
+   - 'event': For specific occurrences.
+   - 'attribute': For sensory details (colors, materials, moods), NOT locations.
+   - 'other': For everything else.
+2. The 'value' field should contain only the core entity (e.g. "Dining Room"), not the full phrase.
+3. If no facts exist, return an empty list [].
+
+Example: "I was in the dining room with my dear brother Elias."
+Result: [
+  {{"claim_text": "I was in the dining room", "category": "location", "key": "at_location", "value": "Dining Room"}},
+  {{"claim_text": "with my dear brother Elias", "category": "person", "key": "with_person", "value": "Elias Morven"}}
+]
+
+Example: "The wallpaper was deep crimson."
+Result: [
+  {{"claim_text": "The wallpaper was deep crimson", "category": "attribute", "key": "wallpaper_color", "value": "deep crimson"}}
+]
+
 JSON:"""
             try:
                 ai_result = self.ai_provider.generate_response(prompt, max_tokens=300)
@@ -106,67 +131,65 @@ JSON:"""
                     return claims
             except Exception:
                 # Fall back to heuristic pattern matching if AI fails or returns invalid format
-                pass
+                # Pattern matching for common claim types
+                # Location claims: "I was in the library", "I saw him in the garden"
+                location_patterns = [
+                    r"(?:I (?:was|am)|he (?:was|is)|she (?:was|is)|they (?:were|are)) (?:in|at) (?:the )?(\w+)",
+                    r"(?:saw|found|met) (?:\w+ )?(?:in|at) (?:the )?(\w+)",
+                ]
 
-        # Pattern matching for common claim types
-        # Location claims: "I was in the library", "I saw him in the garden"
-        location_patterns = [
-            r"(?:I (?:was|am)|he (?:was|is)|she (?:was|is)|they (?:were|are)) (?:in|at) (?:the )?(\w+)",
-            r"(?:saw|found|met) (?:\w+ )?(?:in|at) (?:the )?(\w+)",
-        ]
-
-        for pattern in location_patterns:
-            matches = re.finditer(pattern, statement, re.IGNORECASE)
-            for match in matches:
-                location = match.group(1)
-                claims.append(
-                    Claim(
-                        claim_text=match.group(0),
-                        category="location",
-                        key="mentioned_location",
-                        value=location,
-                    )
-                )
-
-        # Time claims: "at 9pm", "last night", "this morning"
-        time_patterns = [
-            r"at (\d{1,2}(?::\d{2})?\s*(?:am|pm))",
-            r"(last night|this morning|yesterday|tonight)",
-        ]
-
-        for pattern in time_patterns:
-            matches = re.finditer(pattern, statement, re.IGNORECASE)
-            for match in matches:
-                time_ref = match.group(1)
-                claims.append(
-                    Claim(
-                        claim_text=match.group(0),
-                        category="time",
-                        key="mentioned_time",
-                        value=time_ref,
-                    )
-                )
-
-        # Person mentions: "I saw John", "spoke with Mary"
-        person_patterns = [
-            r"(?:saw|met|spoke with|talked to) (\w+)",
-            r"(\w+) (?:was|is) (?:there|here|present)",
-        ]
-
-        for pattern in person_patterns:
-            matches = re.finditer(pattern, statement, re.IGNORECASE)
-            for match in matches:
-                person = match.group(1)
-                # Only track if it's a known character
-                if person in self.world_state.characters:
-                    claims.append(
-                        Claim(
-                            claim_text=match.group(0),
-                            category="person",
-                            key="mentioned_person",
-                            value=person,
+                for pattern in location_patterns:
+                    matches = re.finditer(pattern, statement, re.IGNORECASE)
+                    for match in matches:
+                        location = match.group(1)
+                        claims.append(
+                            Claim(
+                                claim_text=match.group(0),
+                                category="location",
+                                key="mentioned_location",
+                                value=location,
+                            )
                         )
-                    )
+
+                # Time claims: "at 9pm", "last night", "this morning"
+                time_patterns = [
+                    r"at (\d{1,2}(?::\d{2})?\s*(?:am|pm))",
+                    r"(last night|this morning|yesterday|tonight)",
+                ]
+
+                for pattern in time_patterns:
+                    matches = re.finditer(pattern, statement, re.IGNORECASE)
+                    for match in matches:
+                        time_ref = match.group(1)
+                        claims.append(
+                            Claim(
+                                claim_text=match.group(0),
+                                category="time",
+                                key="mentioned_time",
+                                value=time_ref,
+                            )
+                        )
+
+                # Person mentions: "I saw John", "spoke with Mary"
+                person_patterns = [
+                    r"(?:saw|met|spoke with|talked to) (\w+)",
+                    r"(\w+) (?:was|is) (?:there|here|present)",
+                ]
+
+                for pattern in person_patterns:
+                    matches = re.finditer(pattern, statement, re.IGNORECASE)
+                    for match in matches:
+                        person = match.group(1)
+                        # Only track if it's a known character
+                        if person in self.world_state.characters:
+                            claims.append(
+                                Claim(
+                                    claim_text=match.group(0),
+                                    category="person",
+                                    key="mentioned_person",
+                                    value=person,
+                                )
+                            )
 
         return claims
 
